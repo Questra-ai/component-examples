@@ -1,0 +1,159 @@
+<survey name="Shelf testing" alt="Shelf testing" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source" autosave="1" displayOnError="all">
+<style name="respview.client.css" mode="after"><![CDATA[
+<style>
+body.shelf-ready{margin:0;background:#f5f3ed;color:#243c31;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+.shelf-ready #survey,.shelf-ready .survey-section,.shelf-ready .survey-body{max-width:none;width:auto;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.shelf-ready .footer,.shelf-ready .survey-error,.shelf-ready .survey-header,.shelf-ready .page-header,.shelf-ready .survey-footer,.shelf-ready .survey-buttons,.shelf-ready .survey-info,.shelf-ready .shelf-native,.shelf-ready .shelf-meta-wrap{display:none!important}
+.sh-ui{max-width:1110px;margin:auto;padding:30px 40px 26px;box-sizing:border-box}
+.sh-ui *{box-sizing:border-box}.sh-ui button{font:inherit;-webkit-tap-highlight-color:transparent}.sh-ui button:focus-visible{outline:3px solid #265d48;outline-offset:4px}
+.sh-heading{margin-bottom:25px}.sh-heading h1{font-size:clamp(25px,3vw,34px);line-height:1.18;letter-spacing:-1.1px;font-weight:500;margin:0 0 10px}.sh-heading p{font-size:13px;line-height:1.5;color:#6d766e;margin:0}
+.sh-rack{position:relative;padding:11px 18px 0;background:linear-gradient(90deg,#c3b8a4 0%,#ebe6da 1.1%,#e8e1d4 2%,#eee8db 98%,#c9beab 99%,#b9ad99 100%);border:1px solid #c7bead;border-radius:9px 9px 4px 4px;box-shadow:0 16px 26px -20px #41352555,0 2px 3px #4b3c2810;isolation:isolate}
+.sh-rack:before{content:"";position:absolute;inset:9px 16px 0;background:radial-gradient(circle,#b8ae9b80 .7px,transparent 1.1px) 2px 2px/13px 13px,linear-gradient(90deg,#d3c8b6,#e8decd 18%,#e8decd 82%,#d1c5b1);z-index:-1;box-shadow:inset 0 15px 25px #9e8f7226}
+.sh-tier{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding-top:10px}
+.sh-tier:after{content:"";position:absolute;bottom:0;left:-10px;right:-10px;height:47px;background:linear-gradient(#ddd5c5 0,#fffdf5 3px,#efeadf 6px,#d9cfbc 8px,#f7f4ed 9px,#e9e3d6 96%,#b8ab94);border-top:1px solid #c6b99f;border-bottom:2px solid #b8aa93;box-shadow:0 9px 12px #5c4a2e26;z-index:1;pointer-events:none}
+.sh-slot{position:relative;min-width:0;height:246px}
+.sh-product{position:relative;width:100%;height:199px;display:block;border:0;background:none;cursor:pointer;padding:0;z-index:2;color:#233c31;touch-action:manipulation}
+.sh-product:focus-visible{outline-offset:-6px;border-radius:8px}
+.sh-floor-shadow{position:absolute;left:13%;right:13%;bottom:1px;height:17px;background:radial-gradient(ellipse,#4d3c2770,transparent 70%);filter:blur(3px);transition:opacity .4s}
+.sh-pack{position:absolute;width:208px;height:208px;bottom:0;left:calc(50% - 132px);background-image:var(--sh-atlas);background-size:300% 200%;background-repeat:no-repeat;pointer-events:none;transform-origin:50% 92%;filter:drop-shadow(2px 4px 2px #41362133);transition:transform .55s cubic-bezier(.2,.85,.25,1.25),filter .4s,opacity .4s;will-change:transform}
+.sh-pack.back{left:calc(50% - 67px);transform:translateY(-3px) scale(.96);filter:brightness(.89) drop-shadow(5px 3px 2px #41362135);z-index:0}
+.sh-pack.front{z-index:1}
+.sh-product:hover .sh-pack.front{transform:translateY(-8px) rotate(-1deg);filter:drop-shadow(4px 12px 6px #41362133)}
+.sh-product[aria-checked="true"]{z-index:4}
+.sh-product[aria-checked="true"] .sh-pack.front{transform:translate(-5px,-19px) scale(1.11) rotate(-3deg);filter:drop-shadow(7px 17px 8px #4136214a)}
+.sh-product[aria-checked="true"] .sh-pack.back{transform:translate(5px,-2px) scale(.96)}
+.sh-check{position:absolute;right:calc(50% - 92px);top:1px;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#274e3d;color:white;box-shadow:0 2px 0 #fff9;font-size:15px;opacity:0;transform:scale(.5);transition:opacity .25s,transform .35s cubic-bezier(.2,.85,.25,1.4);z-index:5}
+.sh-product[aria-checked="true"] .sh-check{opacity:1;transform:scale(1)}
+.sh-ticket{position:absolute;bottom:6px;left:12%;right:12%;height:33px;border:1px solid #d2cdc1;box-shadow:0 1px 2px #55493115;background:#fffef9;border-radius:2px;display:flex;align-items:center;justify-content:space-between;padding:3px 9px;z-index:2;color:#303931}
+.sh-ticket-copy{min-width:0;padding-right:4px}.sh-ticket-name{font-size:9px;font-weight:600;line-height:1.1;white-space:nowrap;text-transform:uppercase;letter-spacing:.35px}.sh-ticket-size{font-size:7px;color:#7a7c73;line-height:1.4;margin-top:2px}.sh-barcode{display:inline-block;width:28px;height:7px;margin-left:6px;background:repeating-linear-gradient(90deg,#353b32 0,#353b32 1px,transparent 1px,transparent 2px,#353b32 2px,#353b32 4px,transparent 4px,transparent 6px);vertical-align:middle;opacity:.7}
+.sh-price{font-size:20px;font-weight:600;letter-spacing:-.8px;white-space:nowrap;line-height:1}.sh-price small{font-size:11px;vertical-align:top;line-height:1.4;letter-spacing:0;margin-right:1px}
+.sh-empty{height:199px;position:relative}.sh-empty .sh-pack{opacity:.14;filter:grayscale(1);transform:scale(.92);left:calc(50% - 104px)}.sh-unavailable{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);font-size:10px;line-height:1.3;white-space:nowrap;color:#786e5a;padding:7px 9px;border:1px solid #b9ae99;background:#e5deceee;border-radius:3px;z-index:2}
+.sh-bottom{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:22px;min-height:56px}
+.sh-selection{display:flex;align-items:center;gap:11px;min-height:51px;min-width:0}.sh-selection-thumb{width:47px;height:47px;flex:none;background-image:var(--sh-atlas);background-size:300% 200%;background-repeat:no-repeat;opacity:0;transform:translateY(4px);transition:opacity .2s,transform .3s}.sh-selection.has-choice .sh-selection-thumb{opacity:1;transform:translateY(0)}
+.sh-selection-title{font-size:13px;line-height:1.4;font-weight:500;margin:0;color:#2c4437}.sh-selection-detail{font-size:11px;line-height:1.5;color:#7b8075;margin:2px 0 0}.sh-selection:not(.has-choice) .sh-selection-thumb{display:none}
+.sh-next{display:flex;align-items:center;justify-content:space-between;gap:34px;border:1px solid #294735;border-radius:7px;padding:16px 20px;background:#294735;color:#fff;cursor:pointer;min-width:181px;min-height:52px;font-size:13px!important;transition:background .2s,transform .2s;flex:none}.sh-next:hover{background:#3b5a46}.sh-next:active{transform:scale(.985)}.sh-next:disabled{opacity:.6;cursor:wait}.sh-next-arrow{font-size:20px;line-height:1}
+.sh-error{color:#a13d2d;font-size:12px;line-height:1.5;margin:12px 0 0}.sh-error:empty{display:none}.sh-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+body.shelf-boot{background:#f5f3ed}.shelf-boot #survey{visibility:hidden}#shelf-start{visibility:visible;padding:30px;color:#52634e;font:14px Arial,sans-serif}
+\@media(min-width:1400px){.sh-ui{padding-top:36px}.sh-slot{height:273px}.sh-product,.sh-empty{height:226px}.sh-pack{width:235px;height:235px;left:calc(50% - 147px)}.sh-pack.back{left:calc(50% - 80px)}.sh-check{top:0;right:calc(50% - 104px)}}
+\@media(max-width:760px){.sh-ui{padding:23px 20px 25px}.sh-heading{margin-bottom:23px}.sh-heading h1{font-size:28px;letter-spacing:-.8px}.sh-heading p{font-size:12px}.sh-rack{padding:10px 10px 0}.sh-rack:before{inset:8px 9px 0}.sh-tier{padding-top:16px}.sh-slot{height:202px}.sh-product,.sh-empty{height:159px}.sh-pack{width:174px;height:174px;left:calc(50% - 108px)}.sh-pack.back{left:calc(50% - 60px)}.sh-tier:after{height:43px;left:-5px;right:-5px}.sh-ticket{left:5%;right:5%;height:30px;bottom:5px;padding:3px 6px}.sh-ticket-name{font-size:7px;letter-spacing:0}.sh-ticket-size{font-size:6px}.sh-price{font-size:18px}.sh-price small{font-size:9px}.sh-check{right:calc(50% - 68px);width:23px;height:23px;font-size:13px;top:0}.sh-bottom{margin-top:18px;gap:12px}.sh-next{min-width:155px;padding:15px 17px}.sh-selection-title{font-size:12px}.sh-selection-detail{font-size:10px}}
+\@media(max-width:500px){.sh-ui{padding:23px 14px 24px}.sh-heading{margin-bottom:24px}.sh-heading h1{font-size:27px;max-width:320px;line-height:1.15}.sh-heading p{font-size:11px;line-height:1.6;max-width:340px}.sh-rack{padding:9px 6px 0}.sh-rack:before{inset:8px 5px 0;background-size:11px 11px,auto}.sh-tier{padding-top:21px}.sh-slot{height:181px}.sh-product,.sh-empty{height:140px}.sh-pack{width:151px;height:151px;left:calc(50% - 75.5px)}.sh-pack.back{display:none}.sh-product[aria-checked="true"] .sh-pack.front{transform:translateY(-12px) scale(1.1) rotate(-3deg)}.sh-product:hover .sh-pack.front{transform:translateY(-4px)}.sh-product[aria-checked="true"]:hover .sh-pack.front{transform:translateY(-12px) scale(1.1) rotate(-3deg)}.sh-ticket{left:3px;right:3px;padding:3px 5px;height:30px}.sh-ticket-name{font-size:6px;white-space:normal;line-height:1.2;max-width:58px}.sh-price{font-size:17px}.sh-price small{font-size:8px}.sh-ticket-size{font-size:6px}.sh-barcode{display:none}.sh-tier:after{height:41px;left:-3px;right:-3px}.sh-floor-shadow{left:5%;right:5%;bottom:0}.sh-check{width:21px;height:21px;font-size:12px;right:5px;top:-5px}.sh-unavailable{font-size:8px;padding:5px}.sh-bottom{margin-top:15px;align-items:stretch;flex-direction:column;gap:13px}.sh-selection{min-height:44px;gap:8px}.sh-selection-thumb{width:43px;height:43px}.sh-selection-title{font-size:12px}.sh-selection-detail{font-size:10px}.sh-next{width:100%;min-height:51px;padding:15px 17px;font-size:12px!important}.sh-error{font-size:11px;margin-top:10px}.sh-empty .sh-pack{left:calc(50% - 75.5px)}}
+\@media(max-width:360px){.sh-ui{padding-left:9px;padding-right:9px}.sh-slot{height:164px}.sh-product,.sh-empty{height:123px}.sh-pack{width:124px;height:124px;left:calc(50% - 62px)}.sh-empty .sh-pack{left:calc(50% - 62px)}.sh-ticket-name{font-size:5.5px}.sh-price{font-size:15px}.sh-heading h1{font-size:25px}}
+\@media(prefers-reduced-motion:reduce){.sh-ui *{animation:none!important;transition:none!important;scroll-behavior:auto!important}.sh-product:hover .sh-pack.front{transform:none}.sh-product[aria-checked="true"] .sh-pack.front{transform:translateY(-5px) scale(1.04)}}
+
+</style>
+]]></style>
+<style name="respview.client.js" mode="after" wrap="ready"><![CDATA[
+(function(){
+'use strict';
+var boot=document.getElementById('shelf-start');
+if(boot){document.body.classList.add('shelf-boot');var initial=document.getElementById('btn_continue');if(initial)setTimeout(function(){initial.click();},30);return;}
+var meta=document.getElementById('shelf-meta');if(!meta)return;
+var next=document.getElementById('btn_continue'),form=next&&next.form;
+var question=document.getElementById('question_'+meta.dataset.label)||document.querySelector('.shelf-native');
+if(!next||!form||!question)return;
+var inventory=[
+ {id:'p101',name:'Oatfield Honey & Almond',brand:'Oatfield',flavor:'Honey & Almond',sprite:0},
+ {id:'p102',name:'Oatfield Maple & Pecan',brand:'Oatfield',flavor:'Maple & Pecan',sprite:1},
+ {id:'p103',name:'Oatfield Berry & Seed',brand:'Oatfield',flavor:'Berry & Seed',sprite:2},
+ {id:'p104',name:'Morning Folk Cocoa & Hazelnut',brand:'Morning Folk',flavor:'Cocoa & Hazelnut',sprite:3},
+ {id:'p105',name:'Morning Folk Coconut & Chia',brand:'Morning Folk',flavor:'Coconut & Chia',sprite:4},
+ {id:'p106',name:'Morning Folk Apple & Cinnamon',brand:'Morning Folk',flavor:'Apple & Cinnamon',sprite:5}
+],items={},inputs={},offers;
+inventory.forEach(function(p){items[p.id]=p;});
+offers=Array.from(meta.querySelectorAll('[data-slot]')).map(function(e){return {slot:Number(e.dataset.slot),product:e.dataset.product,shelf:Number(e.dataset.shelf),position:Number(e.dataset.position),price:Number(e.dataset.price),available:Number(e.dataset.available)};});
+Array.from(question.querySelectorAll('input[type="radio"]')).forEach(function(input){
+ var label=question.querySelector('label[for="'+input.id+'"]'),tag=label&&label.querySelector('[data-product]');
+ var product=tag?tag.dataset.product:null;
+ if(!product&&label){var known=inventory.find(function(p){return p.name===label.textContent.trim();});if(known)product=known.id;}
+ if(product)inputs[product]=input;
+});
+if(!Array.isArray(offers)||offers.length!==6||offers.some(function(o){return !items[o.product]||!Number.isInteger(o.slot)||!Number.isInteger(o.price)||(o.available===1&&!inputs[o.product]);}))return;
+var key='shelf:'+location.pathname+':'+meta.dataset.label+':'+meta.dataset.session+':'+meta.dataset.design+':'+meta.dataset.version;
+var selected=null,submitted=false,ui=document.createElement('main');
+var money=function(cents){return '$'+(cents/100).toFixed(2);};
+var position=function(product){var s=items[product].sprite;return (s%3*50)+'% '+(s<3?0:100)+'%';};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+ui.className='sh-ui';ui.setAttribute('aria-label','Shelf selection');ui.style.setProperty('--sh-atlas','url("'+meta.dataset.assets+'granola-atlas.png")');
+ui.innerHTML='<header class="sh-heading"><h1>Which granola would you choose?</h1><p>Select one product from the shelf. You can change your choice before continuing.</p></header><div class="sh-rack" role="radiogroup" aria-label="Granola products" aria-required="true" aria-describedby="sh-error"></div><div class="sh-bottom"><div class="sh-selection"><div class="sh-selection-thumb" aria-hidden="true"></div><div><p class="sh-selection-title">Choose a product from the shelf</p><p class="sh-selection-detail">All packs 350 g · Prices in USD</p></div></div><button type="button" class="sh-next"><span>Continue</span><span class="sh-next-arrow" aria-hidden="true">→</span></button></div><p class="sh-error" id="sh-error" role="alert"></p><span class="sh-sr" role="status" aria-live="polite"></span>';
+var rack=ui.querySelector('.sh-rack'),error=ui.querySelector('.sh-error'),status=ui.querySelector('[role="status"]'),submit=ui.querySelector('.sh-next');
+[1,2].forEach(function(level){
+ var tier=document.createElement('div');tier.className='sh-tier';tier.setAttribute('role','presentation');rack.appendChild(tier);
+ offers.filter(function(o){return o.shelf===level;}).sort(function(a,b){return a.position-b.position;}).forEach(function(o){
+  var p=items[o.product],slot=document.createElement('div');slot.className='sh-slot';slot.dataset.slot=o.slot;slot.dataset.product=o.product;
+  var packs='<i class="sh-floor-shadow" aria-hidden="true"></i><i class="sh-pack back" aria-hidden="true" style="background-position:'+position(p.id)+'"></i><i class="sh-pack front" aria-hidden="true" style="background-position:'+position(p.id)+'"></i>';
+  if(o.available===1){slot.innerHTML='<button class="sh-product" type="button" role="radio" aria-checked="false" data-product="'+p.id+'" aria-label="'+esc(p.name+', 350 grams, '+money(o.price))+'" tabindex="-1">'+packs+'<span class="sh-check" aria-hidden="true">✓</span></button>';}
+  else{slot.innerHTML='<div class="sh-empty" aria-label="'+esc(p.name+' unavailable')+'">'+packs+'<span class="sh-unavailable">Unavailable</span></div>';}
+  slot.innerHTML+='<div class="sh-ticket" aria-hidden="true"><div class="sh-ticket-copy"><div class="sh-ticket-name">'+esc(p.flavor)+'</div><div class="sh-ticket-size">350 g<span class="sh-barcode"></span></div></div><div class="sh-price"><small>$</small>'+(o.price/100).toFixed(2)+'</div></div>';
+  tier.appendChild(slot);
+ });
+});
+var buttons=Array.from(ui.querySelectorAll('.sh-product'));
+function update(announce){
+ buttons.forEach(function(b,i){var checked=b.dataset.product===selected;b.setAttribute('aria-checked',checked?'true':'false');b.tabIndex=selected?(checked?0:-1):(i===0?0:-1);});
+ var p=selected&&items[selected],o=offers.find(function(x){return x.product===selected;});
+ var summary=ui.querySelector('.sh-selection');summary.classList.toggle('has-choice',!!p);
+ ui.querySelector('.sh-selection-title').textContent=p?p.name:'Choose a product from the shelf';
+ ui.querySelector('.sh-selection-detail').textContent=p?money(o.price)+' · 350 g':'All packs 350 g · Prices in USD';
+ if(p)ui.querySelector('.sh-selection-thumb').style.backgroundPosition=position(p.id);
+ if(announce&&p)status.textContent=p.name+', '+money(o.price)+', selected.';
+}
+function choose(id,focus){
+ if(submitted||!inputs[id]||!offers.some(function(o){return o.product===id&&o.available===1;}))return;
+ inputs[id].click();selected=id;error.textContent='';rack.removeAttribute('aria-invalid');
+ try{sessionStorage.setItem(key,id);}catch(e){}
+ update(true);if(focus)buttons.find(function(b){return b.dataset.product===id;}).focus();
+}
+buttons.forEach(function(b){
+ b.addEventListener('click',function(){choose(b.dataset.product,false);});
+ b.addEventListener('keydown',function(e){
+  var direction={ArrowLeft:-1,ArrowUp:-3,ArrowRight:1,ArrowDown:3}[e.key],index=buttons.indexOf(b),target;
+  if(direction){e.preventDefault();target=(index+direction+buttons.length*2)%buttons.length;choose(buttons[target].dataset.product,true);}
+  else if(e.key==='Home'||e.key==='End'){e.preventDefault();choose(buttons[e.key==='Home'?0:buttons.length-1].dataset.product,true);}
+ });
+});
+var restored=Object.keys(inputs).find(function(id){return inputs[id].checked;});
+if(!restored){try{restored=sessionStorage.getItem(key);}catch(e){}}
+if(restored&&inputs[restored]){inputs[restored].click();selected=restored;}
+update(false);
+// Only hide the native form after every offered item has a native input and the UI is ready.
+meta.closest('.html').insertAdjacentElement('beforebegin',ui);meta.closest('.html').classList.add('shelf-meta-wrap');document.body.classList.add('shelf-ready');
+var nativeErrors=Array.from(document.querySelectorAll('.question-error')).map(function(e){return e.textContent.trim();}).filter(Boolean);
+if(nativeErrors.length&&!selected){error.textContent=nativeErrors.join(' ');rack.setAttribute('aria-invalid','true');}
+submit.addEventListener('click',function(){
+ if(submitted)return;
+ submitted=true;submit.disabled=true;buttons.forEach(function(b){b.disabled=true;});
+ next.click();
+});
+form.addEventListener('submit',function(){submitted=true;});
+})();
+
+]]></style>
+<exec when="init"><![CDATA[
+def shelfLoadDesign(fname):
+    f = open("%s/%s" % (gv.survey.path, fname))
+    records = [line.strip("\r\n").split("\t") for line in f.readlines() if line.strip()]
+    f.close()
+    if records[0] != ["Version", "Task", "Concept", "Product", "Shelf", "Position", "Price", "Available"]:
+        raise ValueError("Unexpected shelf design header")
+    design = {}
+    for row in records[1:]:
+        if len(row) != 8:
+            raise ValueError("Invalid shelf design row")
+        values = [int(n) for n in row]
+        key = "v%s_t%s_c%s" % (values[0],values[1],values[2])
+        if key in design:
+            raise ValueError("Duplicate shelf design key")
+        design[key] = values[3:]
+    return design
+shelfDesign = shelfLoadDesign("shelf-design-v1.dat")
+def shelfOffers(version):
+    offers = []
+    for slot in range(1,7):
+        a = shelfDesign["v%s_t1_c%s" % (version,slot)]
+        offers.append({"slot":slot, "product":"p%s" % a[0], "shelf":a[1], "position":a[2], "price":a[3], "available":a[4]})
+    return offers
+]]></exec>
+
+{{slot:main}}
+<samplesources default="0"><samplesource list="0"><title>Open survey</title><completed>You have already completed this study.</completed><exit cond="qualified">Your responses have been recorded.</exit></samplesource></samplesources>
+</survey>

@@ -8,6 +8,7 @@ Reusable survey component examples from Questra, organized by platform and compo
 | --- | --- | --- |
 | Decipher | [Swipe cards](decipher/swipe-cards/) | A native radio matrix presented as swipe cards, with Dislike, Skip and Like responses, shared CSS/JavaScript, and an importable Questra fine-tuning template. |
 | Decipher | [Outfit selection](decipher/outfit-studio/) | Five native design-file tasks with clothing selection, optional hats, drag/snap interaction, and an importable Questra fine-tuning template. |
+| Decipher | [Shelf testing](decipher/shelf-testing/) | A realistic grocery shelf with native product choice, controlled placements and availability, and an importable Questra fine-tuning template. |
 
 The swipe-card example includes [live synthetic demos](decipher/swipe-cards/#decipher-swipe-cards), [paste-ready survey XML](decipher/swipe-cards/survey.xml), a [Questra template export](decipher/swipe-cards/questra-template.json), and a screenshot. Read its verification notes before adapting it to a survey.
 

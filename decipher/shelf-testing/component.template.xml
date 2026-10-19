@@ -1,0 +1,58 @@
+<number label="@{label}DesignVersion" where="execute" optional="1" size="1"><title>Assigned shelf design version</title><exec>
+if @{label}DesignVersion.val is None:
+    @{label}DesignVersion.val = random.randint(1,6)
+</exec></number>
+<text label="@{label}DesignID" where="execute" optional="1"><title>Immutable shelf design ID</title><exec>@{label}DesignID.val = "shelf-20261019-v1"</exec></text>
+<number label="@{label}SessionKey" where="execute" optional="1" size="12"><title>Anonymous draft cache key</title><exec>
+if @{label}SessionKey.val is None:
+    @{label}SessionKey.val = random.randint(100000000,999999999)
+</exec></number>
+<html label="@{label}Start" where="survey"><div id="shelf-start" data-label="@{label}">Loading…</div></html>
+<suspend/>
+<exec>
+p.@{label}Offers = shelfOffers(@{label}DesignVersion.val)
+p.@{label}Available = [a['product'] for a in p.@{label}Offers if a['available'] == 1]
+</exec>
+<number label="@{label}Task" where="execute" optional="1" size="1"><title>Shelf design task</title><exec>@{label}Task.val = 1</exec></number>
+<number label="@{label}Offers" where="execute" optional="1" size="5"><title>Assigned shelf layout by physical slot; price in USD cents; availability 0 or 1</title>
+<row label="r1">Top shelf, left</row>
+<row label="r2">Top shelf, center</row>
+<row label="r3">Top shelf, right</row>
+<row label="r4">Bottom shelf, left</row>
+<row label="r5">Bottom shelf, center</row>
+<row label="r6">Bottom shelf, right</row>
+<col label="slot">Physical slot</col>
+<col label="product">Stable product code</col>
+<col label="shelf">Shelf number</col>
+<col label="position">Position within shelf</col>
+<col label="price">Price in USD cents</col>
+<col label="available">Available to choose</col>
+<exec>
+for a in p.@{label}Offers:
+    r = @{label}Offers.rows[a['slot']-1]
+    r.slot.val = a['slot']
+    r.product.val = int(a['product'][1:])
+    r.shelf.val = a['shelf']
+    r.position.val = a['position']
+    r.price.val = a['price']
+    r.available.val = a['available']
+</exec></number>
+<html label="@{label}Meta" where="survey"><div id="shelf-meta" data-label="@{label}" data-version="${@{label}DesignVersion.val}" data-design="${@{label}DesignID.val}" data-session="${@{label}SessionKey.val}" data-assets="/survey/${gv.survey.path}/"><span data-slot="1" data-product="p${@{label}Offers.r1.product.val}" data-shelf="${@{label}Offers.r1.shelf.val}" data-position="${@{label}Offers.r1.position.val}" data-price="${@{label}Offers.r1.price.val}" data-available="${@{label}Offers.r1.available.val}"></span><span data-slot="2" data-product="p${@{label}Offers.r2.product.val}" data-shelf="${@{label}Offers.r2.shelf.val}" data-position="${@{label}Offers.r2.position.val}" data-price="${@{label}Offers.r2.price.val}" data-available="${@{label}Offers.r2.available.val}"></span><span data-slot="3" data-product="p${@{label}Offers.r3.product.val}" data-shelf="${@{label}Offers.r3.shelf.val}" data-position="${@{label}Offers.r3.position.val}" data-price="${@{label}Offers.r3.price.val}" data-available="${@{label}Offers.r3.available.val}"></span><span data-slot="4" data-product="p${@{label}Offers.r4.product.val}" data-shelf="${@{label}Offers.r4.shelf.val}" data-position="${@{label}Offers.r4.position.val}" data-price="${@{label}Offers.r4.price.val}" data-available="${@{label}Offers.r4.available.val}"></span><span data-slot="5" data-product="p${@{label}Offers.r5.product.val}" data-shelf="${@{label}Offers.r5.shelf.val}" data-position="${@{label}Offers.r5.position.val}" data-price="${@{label}Offers.r5.price.val}" data-available="${@{label}Offers.r5.available.val}"></span><span data-slot="6" data-product="p${@{label}Offers.r6.product.val}" data-shelf="${@{label}Offers.r6.shelf.val}" data-position="${@{label}Offers.r6.position.val}" data-price="${@{label}Offers.r6.price.val}" data-available="${@{label}Offers.r6.available.val}"></span></div></html>
+<radio label="@{label}" optional="0" ss:questionClassNames="shelf-native"><title>Which granola would you choose?</title><comment>Choose one product from the shelf.</comment>
+<row label="p101" value="101" cond="'p101' in p.@{label}Available" alt="Oatfield Honey &amp; Almond"><span data-product="p101">Oatfield Honey &amp; Almond</span></row>
+<row label="p102" value="102" cond="'p102' in p.@{label}Available" alt="Oatfield Maple &amp; Pecan"><span data-product="p102">Oatfield Maple &amp; Pecan</span></row>
+<row label="p103" value="103" cond="'p103' in p.@{label}Available" alt="Oatfield Berry &amp; Seed"><span data-product="p103">Oatfield Berry &amp; Seed</span></row>
+<row label="p104" value="104" cond="'p104' in p.@{label}Available" alt="Morning Folk Cocoa &amp; Hazelnut"><span data-product="p104">Morning Folk Cocoa &amp; Hazelnut</span></row>
+<row label="p105" value="105" cond="'p105' in p.@{label}Available" alt="Morning Folk Coconut &amp; Chia"><span data-product="p105">Morning Folk Coconut &amp; Chia</span></row>
+<row label="p106" value="106" cond="'p106' in p.@{label}Available" alt="Morning Folk Apple &amp; Cinnamon"><span data-product="p106">Morning Folk Apple &amp; Cinnamon</span></row>
+<validate>
+if @{label}.val is not None:
+    if @{label}.selected.label not in p.@{label}Available:
+        error("Please choose an available product from the shelf.")
+</validate></radio>
+<suspend/>
+<text label="@{label}ProductID" where="execute" optional="1"><title>Chosen stable product ID</title><exec>@{label}ProductID.val = @{label}.selected.label</exec></text>
+<float label="@{label}Price" where="execute" optional="1" size="6"><title>Chosen product price in USD</title><exec>@{label}Price.val = [a['price'] for a in p.@{label}Offers if a['product'] == @{label}.selected.label][0] / 100.0</exec></float>
+<number label="@{label}Slot" where="execute" optional="1" size="1"><title>Chosen product physical slot</title><exec>@{label}Slot.val = [a['slot'] for a in p.@{label}Offers if a['product'] == @{label}.selected.label][0]</exec></number>
+<number label="@{label}Shelf" where="execute" optional="1" size="1"><title>Chosen product shelf</title><exec>@{label}Shelf.val = [a['shelf'] for a in p.@{label}Offers if a['product'] == @{label}.selected.label][0]</exec></number>
+<number label="@{label}Position" where="execute" optional="1" size="1"><title>Chosen product position within shelf</title><exec>@{label}Position.val = [a['position'] for a in p.@{label}Offers if a['product'] == @{label}.selected.label][0]</exec></number>

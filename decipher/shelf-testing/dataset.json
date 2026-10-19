@@ -1,0 +1,60 @@
+{
+  "currency": "USD",
+  "asset": "assets/granola-atlas.png",
+  "products": [
+    {
+      "id": "p101",
+      "code": 101,
+      "brand": "Oatfield",
+      "variety": "Honey & Almond",
+      "name": "Oatfield Honey & Almond",
+      "price_cents": 449,
+      "visual_index": 0
+    },
+    {
+      "id": "p102",
+      "code": 102,
+      "brand": "Oatfield",
+      "variety": "Maple & Pecan",
+      "name": "Oatfield Maple & Pecan",
+      "price_cents": 479,
+      "visual_index": 1
+    },
+    {
+      "id": "p103",
+      "code": 103,
+      "brand": "Oatfield",
+      "variety": "Berry & Seed",
+      "name": "Oatfield Berry & Seed",
+      "price_cents": 459,
+      "visual_index": 2
+    },
+    {
+      "id": "p104",
+      "code": 104,
+      "brand": "Morning Folk",
+      "variety": "Cocoa & Hazelnut",
+      "name": "Morning Folk Cocoa & Hazelnut",
+      "price_cents": 489,
+      "visual_index": 3
+    },
+    {
+      "id": "p105",
+      "code": 105,
+      "brand": "Morning Folk",
+      "variety": "Coconut & Chia",
+      "name": "Morning Folk Coconut & Chia",
+      "price_cents": 469,
+      "visual_index": 4
+    },
+    {
+      "id": "p106",
+      "code": 106,
+      "brand": "Morning Folk",
+      "variety": "Apple & Cinnamon",
+      "name": "Morning Folk Apple & Cinnamon",
+      "price_cents": 459,
+      "visual_index": 5
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "design_id": "shelf-20261019-v1",
+  "file": "shelf-design-v1.dat",
+  "sha256": "7dcc62aab427c8f9030d6cbad426b0dc9d7d7fd741996aabb68bd1b2c91b8124",
+  "format": "Headered tab-delimited UTF-8 text",
+  "versions": 6,
+  "tasks_per_version": 1,
+  "slots_per_task": 6,
+  "currency": "USD",
+  "price_unit": "cents",
+  "assignment": "Independent random native assignment, retained before the choice page; no URL assignment and no quota balancing.",
+  "placement": "Concept is the fixed physical slot: 1–3 top shelf left to right; 4–6 bottom shelf left to right. Product rotates through all six positions across versions.",
+  "availability": "Versions 1–4 offer all products; version 5 retains p103 on the shelf but unavailable; version 6 retains p106 but unavailable.",
+  "schema": {
+    "Version": "Assigned native design version (1–6)",
+    "Task": "Single task, always 1",
+    "Concept": "Physical slot (1–6)",
+    "Product": "Stable product code (101–106); ID is p followed by this code",
+    "Shelf": "1 top, 2 bottom",
+    "Position": "1 left, 2 center, 3 right",
+    "Price": "Displayed price in integer USD cents",
+    "Available": "1 selectable, 0 unavailable and excluded from native choices"
+  },
+  "statistical_status": "Illustrative controlled permutations; not statistically optimized or validated conjoint."
+}
