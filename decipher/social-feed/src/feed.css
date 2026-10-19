@@ -2,3 +2,5 @@ body.cf-page{background:#fff!important;color:#252b28;font-family:Arial,sans-seri
 @media(max-width:760px){.cf-layout{margin:16px auto}.cf-instructions h2{font-size:21px}.cf-copy{padding:16px}.cf-page #survey{padding:0 8px}.cf-card{margin-bottom:16px}}
 @media(prefers-reduced-motion:reduce){.cf-like{transition:none}html{scroll-behavior:auto}}
 .cf-page .survey-info,.cf-page .survey-warning{display:none}
+.cf-source{font-size:12px;font-weight:600;color:#67716b;padding:18px 20px 0}.cf-source+.cf-copy{padding-top:9px}.cf-actions{justify-content:flex-start}.cf-art{cursor:default}
+@media(max-width:760px){.cf-source{padding:16px 16px 0}}

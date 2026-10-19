@@ -6,38 +6,54 @@ cfg={'feeds':5,'items':30,'versions':8}
 cfg=json.loads((ROOT/'config.json').read_text())
 assert 1 <= cfg['feeds'] <= 12 and 1 <= cfg['items'] <= 60 and 1 <= cfg['versions'] <= 99, 'Use feeds 1-12, items 1-60, versions 1-99'
 
-copy=[
-'A slower morning starts with one good cup. Take a moment before the day begins.',
-'Your next great idea might be waiting outside. Make room for a little fresh air.',
-'A small change of scenery can change the whole day. Where would you go?',
-'Less rushing. More noticing. There is something good in the everyday.',
-'An open afternoon, a loose plan, and something new to discover.',
-'Save a little space for the things you do just because you love them.',
-'Good things do not always need a big plan. Start small and see where it goes.',
-'Find your own rhythm. There is no single right way to spend a free hour.',
-'A fresh perspective is closer than you think. Try a different route today.',
-'A reminder to pause, look around, and enjoy the part you are in.',
-'Little rituals make ordinary days feel a little more like yours.',
-'Here is to making time for something that is not on your to-do list.',
-'An invitation to unplug for a while and see what you notice.',
-'The best kind of reset? Something simple, with room to breathe.',
-'Bring a friend. Bring your curiosity. Leave the complicated plans behind.',
-'A quiet corner of the day, saved just for you.',
-'Consider this your sign to try the thing you have been putting off.',
-'More everyday adventures. Fewer perfect itineraries.',
-'There is a lot to love about taking the long way home.',
-'Make a little room for wonder, even on a very ordinary Tuesday.',
-'Your weekend does not have to be full to feel good.',
-'A change of pace, a new favorite, a story worth sharing.',
-'Take the pressure off. A little enjoyment is reason enough.',
-'A good day can begin with the smallest of decisions.',
-'Choose something that makes you feel a little more present.',
-'Sometimes the best discovery is right in your own neighborhood.',
-'For the moments between big plans: a little everyday inspiration.',
-'A simple pleasure is still a pleasure. Let it count.',
-'Collect moments that feel like you. There is no need to keep score.',
-'Leave a little space in the day for a pleasant surprise.'
+# Original organic posts and fictional advertising copy; no borrowed social content.
+organic=[
+('Kitchen notes','A tray of tomatoes, garlic and chickpeas: roast until the edges catch, then spoon over toast.',9),
+('Trail journal','The switchback looks steep from below. From the ridge, the whole valley opens up.',2),
+('Around the block','Three painted front doors from a walk with no destination. The yellow one wins today.',3),
+('Coastal notebook','Low tide leaves little channels in the sand. Every walk along this shore takes a different route.',4),
+('Growing things','Basil cuttings rooted in a glass of water this week. Time to find them a bigger home.',5),
+('Reading corner','A short story collection is ideal for the ten minutes between dinner and doing the dishes.',6),
+('Studio notes','Try painting the same view with just three colors. The missing colors make you look harder.',7),
+('Weekend table','The picnic plan: pears, sharp cheese, a blanket and a place under the trees.',8),
+('Kitchen notes','The best part of baking bread is the first slice, still warm enough to melt the butter.',9),
+('City rides','A quiet back street can turn a routine bike ride into the nicest part of the day.',10),
+('Morning ritual','Today’s coffee experiment: a slightly coarser grind and a slower pour. A softer cup.',1),
+('Trail journal','Pack an extra layer for the ridge. The sheltered start tells you very little about the wind above.',2),
+('Around the block','A tiny front garden can hold a lot: rosemary by the gate, marigolds along the path.',3),
+('Coastal notebook','Sketching boats is mostly an exercise in looking at the spaces between the ropes.',4),
+('Growing things','Turn a windowsill pot a quarter turn each week to help the stems grow evenly.',5),
+('Reading corner','A book swap idea: tuck a handwritten, spoiler-free recommendation inside the cover.',6),
+('Studio notes','A scrap of cardboard makes a surprisingly good paint scraper. These hills started as one broad stroke.',7),
+('Weekend table','Cloudy picnic weather has one advantage: the good patch of grass is usually empty.',8),
+('Kitchen notes','Save the heel of the loaf. Tomorrow it becomes crunchy crumbs for a bowl of pasta.',9),
+('City rides','A short check before leaving: tires firm, brakes responsive, lights working.',10),
+('Morning ritual','A favorite mug, a sunny table, and five quiet minutes before the first meeting.',1),
+('Trail journal','The long route follows the stream. The short route goes straight up. Today feels like a stream day.',2),
+('Around the block','Look up on your next neighborhood walk. There are small architectural details above almost every shop.',3),
+('Coastal notebook','The horizon is a useful reminder to leave a little empty space in a drawing.',4),
+('Growing things','A finger in the soil is a better watering reminder than a fixed day on the calendar.',5),
+('Reading corner','Reading two very different books at once means there is always something for the mood you are in.',6),
+('Studio notes','Mix a little of yesterday’s color into today’s palette. A series starts to feel connected.',7),
+('Weekend table','An ordinary lunch tastes different outside. Even the nearest patch of green will do.',8),
+('Kitchen notes','A small bowl of herby yogurt makes roasted vegetables feel like a complete meal.',9),
+('City rides','The route with fewer junctions is sometimes more relaxing than the route with fewer miles.',10)
 ]
+adcopy=[
+('Aster Trail','Room for the essentials. The Aster Trail daypack keeps your everyday carry simple.',2,1),
+('Aster Trail','From the morning train to the afternoon trail. One daypack, plenty of possibilities.',10,1),
+('Aster Trail','Take the scenic route. Carry a lighter plan with the Aster Trail daypack.',2,1),
+('Aster Trail','A place for your bottle, your book and whatever the day becomes. Meet the Aster Trail daypack.',8,1),
+('Kettle & Kind','Make a little room for the morning. Discover the Kettle & Kind coffee collection.',1,2),
+('Kettle & Kind','Your favorite mug deserves a new ritual. Meet the Kettle & Kind morning blend.',9,2),
+('Kettle & Kind','A quiet start, one cup at a time. Explore coffee from Kettle & Kind.',1,2),
+('Kettle & Kind','Coffee for the moments between plans. Find your next cup with Kettle & Kind.',8,2),
+('Leafline Studio','Bring a little green indoors. Meet the windowsill planters from Leafline Studio.',5,3),
+('Leafline Studio','A small home for something growing. Discover Leafline Studio planters.',3,3),
+('Leafline Studio','Give your favorite corner a fresh start with a Leafline Studio planter.',5,3),
+('Leafline Studio','Simple shapes, room to grow. Explore the Leafline Studio planter collection.',7,3)
+]
+copy=[p[1] for p in organic]+[p[1] for p in adcopy]
 palettes=[('#f1d7b4','#c97a4c','#527264'),('#dae5dc','#819d7b','#e6ae71'),('#e8d5cd','#b27165','#799587'),('#dae4e8','#8aa8af','#d9ac65'),('#ece4c7','#6e8e69','#d2986e'),('#e4d8df','#9d7b82','#739893'),('#eadccb','#c29568','#546e73'),('#d9e3ce','#7d9660','#c68b55'),('#e7d8bd','#a88862','#698a79'),('#dce4e5','#74969b','#d7a477')]
 scenes=[]
 for i,(bg,a,b) in enumerate(palettes):
@@ -55,17 +71,39 @@ for i,(bg,a,b) in enumerate(palettes):
     f'<path d="M0 315h800v85H0Z" fill="{b}"/><circle cx="260" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><circle cx="570" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><path d="M260 275l90-125 65 125H260l230-120 80 120m-220-125-15-32m155 37-15-45h50" fill="none" stroke="{a}" stroke-width="13"/><path d="M313 115h65" stroke="#486560" stroke-width="14"/>'
     ][i]
     scenes.append(common+scene+'</svg>')
-# Genuine tab-delimited DCM design: first three keys, then levels/order/item attributes.
-lines=['Version\tTask\tConcept\tCopy\tImage\tOrder\tItem']
+# Six original product illustrations, two image levels per fictional campaign.
+for campaign in range(1,4):
+    for variant in range(2):
+        bg=['#e8eee4','#d9e6e7','#eee1cb','#e4d2bd','#e4e9d9','#eaded2'][(campaign-1)*2+variant]
+        ink=['#557666','#547d8a','#8d5f43','#b77e4f','#69875c','#b17b5d'][(campaign-1)*2+variant]
+        start=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: '+['Aster Trail daypack','Kettle and Kind coffee','Leafline Studio planter'][campaign-1]+f'"><rect width="800" height="400" fill="{bg}"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="{ink}" opacity=".15"/>'
+        if campaign==1:
+            art=f'<path d="M330 105v-20q0-35 70-35t70 35v20" fill="none" stroke="{ink}" stroke-width="17"/><rect x="290" y="85" width="220" height="255" rx="55" fill="{ink}"/><rect x="315" y="200" width="170" height="108" rx="25" fill="#fff" opacity=".22"/><path d="M330 225h140m-70-125v60" stroke="#eaddbb" stroke-width="7"/><path d="M270 130q-50 50-15 160m275-160q50 50 15 160" fill="none" stroke="{ink}" stroke-width="18"/><path d="M390 145l10-18 10 18" fill="none" stroke="#eaddbb" stroke-width="4"/>'
+        elif campaign==2:
+            art=f'<path d="M280 70h180l15 260H265Z" fill="{ink}"/><path d="M280 70h180l-10 28H290Z" fill="#fff" opacity=".25"/><rect x="290" y="145" width="150" height="100" rx="5" fill="#fff6e5"/><text x="365" y="188" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="{ink}">KETTLE</text><text x="365" y="219" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="{ink}">&amp; KIND</text><path d="M505 235h115v60q0 40-58 40t-57-40z" fill="#fff6e5"/><path d="M620 245q55-8 40 35-7 20-40 10" fill="none" stroke="#fff6e5" stroke-width="14"/><ellipse cx="562" cy="235" rx="57" ry="12" fill="#694836"/>'
+        else:
+            art=f'<path d="M290 220h220l-30 120H320Z" fill="{ink}"/><path d="M400 225V75m0 100-70-55m70 80 65-50" fill="none" stroke="#526e42" stroke-width="10"/><ellipse cx="338" cy="115" rx="55" ry="27" transform="rotate(30 338 115)" fill="#708c53"/><ellipse cx="455" cy="135" rx="58" ry="28" transform="rotate(-30 455 135)" fill="#8ba16b"/><ellipse cx="400" cy="70" rx="27" ry="50" transform="rotate(15 400 70)" fill="#607c49"/><path d="M325 260h150m-140 25h130" stroke="#fff" opacity=".25" stroke-width="7"/>'
+        scenes.append(start+art+'</svg>')
+# A real version/task/concept .dat design: all content/creative choices are fixed here.
+lines=['Version\tTask\tConcept\tCopy\tImage\tOrder\tItem\tKind\tCreative\tCampaign\tContext']
 for v in range(1,cfg['versions']+1):
     rng=random.Random(78131+v)
     for f in range(1,cfg['feeds']+1):
         copies=list(range(1,31));rng.shuffle(copies)
-        imgs=[i%10+1 for i in range(cfg['items'])];rng.shuffle(imgs)
-        for i in range(1,cfg['items']+1):lines.append(f'{v}\t{f}\t{i}\t{copies[(i-1)%30]}\t{imgs[i-1]}\t{i}\t{(f-1)*cfg["items"]+i}')
+        # One sponsored placement per five positions; positions vary by assigned version/task.
+        ads={start+rng.randrange(min(5,cfg['items']-start))+1 for start in range(0,cfg['items'],5)}
+        creatives=list(range(24));rng.shuffle(creatives)
+        oi=0;ai=0
+        for i in range(1,cfg['items']+1):
+            kind=int(i in ads)
+            if kind:
+                combination=creatives[ai%24];ai+=1;creative=combination//2;c=31+creative;campaign=adcopy[creative][3];im=11+(campaign-1)*2+combination%2;creative=10000+c*100+im
+            else:
+                c=copies[oi%30];oi+=1;im=organic[c-1][2];creative=0;campaign=0
+            lines.append('\t'.join(map(str,[v,f,i,c,im,i,(f-1)*cfg['items']+i,kind,creative,campaign,f])))
 (ROOT/'social-design.dat').write_text('\n'.join(lines)+'\n')
 css=(ROOT/'src/feed.css').read_text().replace('@','\\@')
-js=(ROOT/'src/feed.js').read_text()
+js=(ROOT/'src/timing.js').read_text()+'\n'+(ROOT/'src/feed.js').read_text()
 x=['<survey name="Social feed" alt="Social feed" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source">',f'<style name="respview.client.css" mode="after"><![CDATA[\n<style>{css}</style>\n]]></style>',f'<style name="respview.client.js" mode="after" wrap="ready"><![CDATA[\n{js}\n]]></style>']
 x.append('''<exec when="init"><![CDATA[
 def loadSocialDesign(fname):
@@ -78,12 +116,16 @@ def loadSocialDesign(fname):
     return design
 socialDesign = loadSocialDesign("social-design.dat")
 ]]></exec>''')
-for i,c in enumerate(copy,1):x.append(f'<res label="copy{i}">{html.escape(c)}</res>')
+for i,c in enumerate(copy,1):
+    x.append(f'<res label="copy{i}">{html.escape(c)}</res>')
+    label=organic[i-1][0] if i<=30 else 'Sponsored · '+adcopy[i-31][0]
+    x.append(f'<res label="byline{i}">{html.escape(label)}</res>')
 for i,svg in enumerate(scenes,1):x.append(f'<res label="image{i}"><![CDATA[{svg}]]></res>')
 x.append(f'''<number label="DesignVersion" where="execute" size="3"><title>Assigned .dat design version</title><exec>
 if DesignVersion.val is None:
     DesignVersion.val = random.randint(1,{cfg['versions']})
 </exec></number>
+<number label="DesignRevision" where="execute" size="2"><title>Design and timing schema revision</title><exec>DesignRevision.val = 2</exec></number>
 <number label="SessionKey" where="execute" size="12"><title>Anonymous response cache key</title><exec>
 if SessionKey.val is None:
     SessionKey.val = random.randint(100000000,999999999)
@@ -92,7 +134,7 @@ if SessionKey.val is None:
 for f in range(1,cfg['feeds']+1):
     x.append(f'<number label="Offer{f}" where="execute" optional="1" size="6"><title>Feed {f}: assigned design metadata by display position</title>')
     for i in range(1,cfg['items']+1):x.append(f'<row label="r{i}">Position {i}</row>')
-    for label,title in [('task','Feed task'),('item','Item identity'),('order','Display order'),('copy','Copy level'),('image','Image level')]:x.append(f'<col label="{label}">{title}</col>')
+    for label,title in [('task','Feed task'),('item','Item identity'),('order','Display order'),('copy','Copy level'),('image','Image level'),('kind','0 organic; 1 sponsored'),('creative','Creative identity; 0 organic'),('campaign','Campaign identity; 0 organic'),('context','Feed context identity')]:x.append(f'<col label="{label}">{title}</col>')
     x.append(f'''<exec>
 for i in range(1,{cfg['items']+1}):
     a = socialDesign[(DesignVersion.val,{f},i)]
@@ -102,9 +144,21 @@ for i in range(1,{cfg['items']+1}):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>''')
-    x.append(f'<html label="Header{f}" where="survey"><![CDATA[<div class="cf-config" data-feed="{f}" data-feeds="{cfg["feeds"]}" data-version="${{DesignVersion.val}}" data-session="${{SessionKey.val}}"></div>]]></html>')
-    x.append(f'<radio label="Feed{f}" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed {f} of {cfg["feeds"]}</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>\nfor i in range(1,{cfg["items"]+1}):\n    a = socialDesign[(DesignVersion.val,{f},i)]\n    Feed{f}.rows[i-1].text = \'&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;\' % (res["copy%d" % a[0]], res["image%d" % a[1]])\n</exec>')
+    x.append(f'<number label="Time{f}" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>')
+    for i in range(1,cfg['items']+1):x.append(f'<row label="r{i}">Position {i}</row>')
+    x.append('<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>')
+    x.append(f'''<exec>
+for r in Time{f}.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>''')
+    x.append(f'<html label="Header{f}" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="{f}" data-feeds="{cfg["feeds"]}" data-version="${{DesignVersion.val}}" data-session="${{SessionKey.val}}"></div>]]></html>')
+    x.append(f'<radio label="Feed{f}" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed {f} of {cfg["feeds"]}</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>\nfor i in range(1,{cfg["items"]+1}):\n    a = socialDesign[(DesignVersion.val,{f},i)]\n    Feed{f}.rows[i-1].text = \'&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;\' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])\n</exec>')
     for i in range(1,cfg['items']+1):x.append(f'<row label="r{i}">Item {i}</row>')
     x.append('<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>')
 x.append('<samplesources default="0"><samplesource list="0"><title>Open survey</title><completed>You have already completed this study.</completed><exit cond="qualified">Your responses have been recorded.</exit></samplesource></samplesources></survey>')

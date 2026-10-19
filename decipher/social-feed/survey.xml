@@ -4,51 +4,121 @@
 \@media(max-width:760px){.cf-layout{margin:16px auto}.cf-instructions h2{font-size:21px}.cf-copy{padding:16px}.cf-page #survey{padding:0 8px}.cf-card{margin-bottom:16px}}
 \@media(prefers-reduced-motion:reduce){.cf-like{transition:none}html{scroll-behavior:auto}}
 .cf-page .survey-info,.cf-page .survey-warning{display:none}
+.cf-source{font-size:12px;font-weight:600;color:#67716b;padding:18px 20px 0}.cf-source+.cf-copy{padding-top:9px}.cf-actions{justify-content:flex-start}.cf-art{cursor:default}
+\@media(max-width:760px){.cf-source{padding:16px 16px 0}}
 </style>
 ]]></style>
 <style name="respview.client.js" mode="after" wrap="ready"><![CDATA[
+/* Shared by the native component and deterministic timing tests. */
+(function(scope){
+'use strict';
+function fraction(rect,width,height){
+ const area=Math.min(rect.width,width)*Math.min(rect.height,height);
+ if(!(area>0))return 0;
+ const w=Math.max(0,Math.min(rect.right,width)-Math.max(rect.left,0));
+ const h=Math.max(0,Math.min(rect.bottom,height)-Math.max(rect.top,0));
+ return Math.min(1,w*h/area);
+}
+function meter(total=0,partial=false){
+ return {total:Math.max(0,total),partial,last:null,eligible:false,
+  sample(now,eligible){
+   if(this.last!==null){const dt=now-this.last;
+    if(this.eligible&&eligible&&dt>=0&&dt<=250)this.total+=dt;
+    else if(this.eligible&&eligible&&dt>250)this.partial=true;
+   }
+   this.last=now;this.eligible=eligible;return Math.floor(this.total);
+  },
+  pause(){this.last=null;this.eligible=false;},
+  state(){return this.partial?3:(this.total>=1?2:1)}
+ };
+}
+const api={fraction,meter};
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+else scope.SocialFeedTiming=api;
+})(typeof window==='undefined'?globalThis:window);
+
 (function(){
 'use strict';
 document.body.classList.add('cf-page');
 if(document.querySelector('#comment_Initialize')){
- const start=document.querySelector('#btn_continue');
- if(start && !start.disabled)start.click();
- return;
+ const start=document.querySelector('#btn_continue');if(start&&!start.disabled)start.click();return;
 }
 const root=document.querySelector('.question.cf-feed');
-if(!root)return;
+if(!root||root.dataset.enhanced)return;
 const native=root.querySelector('.answers'),form=root.closest('form'),next=form&&form.querySelector('#btn_continue');
-const config=document.querySelector('.cf-config');
-if(!native||!next||!config)return;
+const config=document.querySelector('.cf-config'),timing=document.querySelector('.question.cf-timing');
+if(!native||!next||!config||!timing)return;
 const groups=new Map();
 native.querySelectorAll('input[type=radio]').forEach(i=>{if(!groups.has(i.name))groups.set(i.name,[]);groups.get(i.name).push(i)});
-const rows=Array.from(groups.values()).map(inputs=>{const tr=inputs[0].closest('tr');const legend=tr&&tr.querySelector('.row-legend');const codes={};inputs.forEach(input=>{const headers=input.closest('td')?.getAttribute('headers')||'';['c1','c2','c3'].forEach(code=>{if(headers.split(/\s+/).some(h=>h.endsWith('_'+code)))codes[code]=input})});return {inputs,legend,codes,card:null,since:null,last:0,touch:null};});
-if(!rows.length||rows.some(r=>!r.legend||Object.keys(r.codes).length!==3))return;
+function column(input,code){return (input.closest('td')?.getAttribute('headers')||'').split(/\s+/).some(h=>h.endsWith('_'+code))}
+const timeRows=Array.from(timing.querySelectorAll('tr')).filter(tr=>tr.querySelector('input[type=text],input[type=number]'));
+const rows=Array.from(groups.values()).map((inputs,index)=>{
+ const tr=inputs[0].closest('tr'),legend=tr&&tr.querySelector('.row-legend'),codes={};
+ inputs.forEach(input=>['c1','c2','c3'].forEach(code=>{if(column(input,code))codes[code]=input}));
+ const timeInputs=Array.from(timeRows[index]?.querySelectorAll('input')||[]);
+ return {inputs,legend,codes,ms:timeInputs.find(i=>column(i,'ms')),state:timeInputs.find(i=>column(i,'state')),card:null,touch:null,lastGesture:-Infinity};
+});
+if(!rows.length||rows.some(r=>!r.legend||Object.keys(r.codes).length!==3||!r.ms||!r.state))return;
+root.dataset.enhanced='true';
 const feed=Number(config.dataset.feed),count=Number(config.dataset.feeds),version=config.dataset.version;
-const storageKey='commonplace-v1:'+location.pathname+':'+config.dataset.session+':'+feed+':'+version;
-let restored=null;try{restored=JSON.parse(sessionStorage.getItem(storageKey)||'null')}catch(e){}
-let submitting=false;
+const storageKey='adfeed-v2:'+location.pathname+':'+config.dataset.session+':'+feed+':'+version;
+const clock=window.SocialFeedTiming,supported=!!(clock&&window.performance&&typeof performance.now==='function'&&typeof document.hasFocus==='function'&&'visibilityState' in document&&typeof IntersectionObserver==='function');
+let restored=null,storageOK=true;
+try{const value=JSON.parse(sessionStorage.getItem(storageKey)||'null');if(value&&value.schema===2&&value.items.length===rows.length)restored=value.items}catch(e){storageOK=false}
+const navigation=window.performance?.getEntriesByType?.('navigation')[0]?.type;
+const gestureNow=()=>window.performance?.now?performance.now():Date.now();
+const lostCache=!restored&&(navigation==='reload'||navigation==='back_forward');
+let submitting=false,paused=false,lastSave=0;
 function selected(r){return ['c1','c2','c3'].find(c=>r.codes[c].checked)||'c1'}
 function choose(r,c){if(!r.codes[c].checked)r.codes[c].click();render(r);save()}
-function save(){try{sessionStorage.setItem(storageKey,JSON.stringify(rows.map(r=>selected(r))))}catch(e){}}
-function render(r){if(!r.card)return;const yes=selected(r)==='c3';const b=r.card.querySelector('.cf-like');b.setAttribute('aria-pressed',String(yes));b.innerHTML=(yes?'♥':'♡')+' &nbsp;'+(yes?'Liked':'Like');const total=rows.filter(r=>selected(r)==='c3').length;ui.querySelector('.cf-count').textContent=total+' liked in this feed';}
-const ui=document.createElement('section');ui.className='cf-layout';ui.innerHTML='<div class="cf-instructions"><div class="cf-round">Feed '+feed+' of '+count+'</div><h2>Which posts stand out to you?</h2><p>Scroll and like any posts that stand out. Double-tap an image to like it; tap Like again to undo. You may continue without liking any posts.</p><div class="cf-count cf-sr" aria-live="polite"></div></div><div class="cf-stream"></div>';
+function sync(){ui.dataset.pageVisible=document.visibilityState;ui.dataset.pageFocused=String(typeof document.hasFocus==='function'&&document.hasFocus());rows.forEach(r=>{r.ms.value=supported?String(Math.floor(r.meter.total)):'-1';r.state.value=supported?String(r.meter.state()):'4'})}
+function save(){
+ sync();
+ try{sessionStorage.setItem(storageKey,JSON.stringify({schema:2,items:rows.map(r=>({like:selected(r),ms:r.meter.total,partial:r.meter.partial}))}))}
+ catch(e){storageOK=false;rows.forEach(r=>r.meter.partial=true);sync()}
+}
+function render(r){if(!r.card)return;const yes=selected(r)==='c3',b=r.card.querySelector('.cf-like');b.setAttribute('aria-pressed',String(yes));b.innerHTML=(yes?'♥':'♡')+' &nbsp;'+(yes?'Liked':'Like')}
+const ui=document.createElement('section');ui.className='cf-layout';ui.innerHTML='<div class="cf-instructions"><div class="cf-round">Feed '+feed+' of '+count+'</div><h2>Which posts stand out to you?</h2><p>Scroll and like any posts that stand out. Double-tap an image to like it; tap Like again to undo. You may continue without liking any posts.</p></div><div class="cf-stream"></div>';
 root.appendChild(ui);const stream=ui.querySelector('.cf-stream');
-rows.forEach((r,i)=>{const card=document.createElement('article');r.card=card;card.className='cf-card';card.dataset.item=String(i+1);card.innerHTML=r.legend.innerHTML+'<div class="cf-actions"><button type="button" class="cf-like" aria-label="Like post '+(i+1)+'" aria-pressed="false">♡ Like</button><span class="cf-post-id">'+String(i+1).padStart(2,'0')+' / '+rows.length+'</span></div>';stream.appendChild(card);if(restored&&['c1','c2','c3'].includes(restored[i]))r.codes[restored[i]].click();else if(!r.inputs.some(x=>x.checked))r.codes.c1.click();
-function toggle(){const now=performance.now();if(submitting||now-r.last<420)return;r.last=now;choose(r,selected(r)==='c3'?'c2':'c3')}
-card.querySelector('.cf-like').addEventListener('click',e=>{if(e.detail>1)return;toggle()});
-const art=card.querySelector('.cf-art');if(art){art.addEventListener('dblclick',e=>{e.preventDefault();toggle()});art.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const now=performance.now();const t=r.touch;if(t&&now-t.time<340&&Math.hypot(e.clientX-t.x,e.clientY-t.y)<25){toggle();r.touch=null}else r.touch={time:now,x:e.clientX,y:e.clientY}});art.addEventListener('pointercancel',()=>r.touch=null)}render(r);
+rows.forEach((r,i)=>{
+ const cached=restored?.[i],nativeMs=Number(r.ms.value);
+ const total=cached&&Number.isFinite(cached.ms)&&cached.ms>=0?cached.ms:Math.max(0,nativeMs||0);
+ r.meter=clock.meter(total,!!cached?.partial||!storageOK||lostCache||Number(r.state.value)===3);
+ const card=document.createElement('article');r.card=card;card.className='cf-card';card.dataset.item=String(i+1);
+ card.innerHTML=r.legend.innerHTML+'<div class="cf-actions"><button type="button" class="cf-like" aria-label="Like post '+(i+1)+'" aria-pressed="false">♡ Like</button></div>';stream.appendChild(card);
+ if(cached&&['c1','c2','c3'].includes(cached.like))r.codes[cached.like].click();else if(!r.inputs.some(x=>x.checked))r.codes.c1.click();
+ function toggle(){if(submitting)return;choose(r,selected(r)==='c3'?(r.meter.total>=1?'c2':'c1'):'c3')}
+ // A button click toggles immediately; subsequent click events in the same multi-click gesture do not.
+ card.querySelector('.cf-like').addEventListener('click',e=>{if(e.detail<=1)toggle()});
+ function imageGesture(){const now=gestureNow();if(now-r.lastGesture<420)return;r.lastGesture=now;toggle()}
+ const art=card.querySelector('.cf-art');if(art){art.addEventListener('dblclick',e=>{e.preventDefault();imageGesture()});art.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const now=gestureNow(),t=r.touch;if(t&&now-t.time<340&&Math.hypot(e.clientX-t.x,e.clientY-t.y)<25){imageGesture();r.touch=null}else r.touch={time:now,x:e.clientX,y:e.clientY}});art.addEventListener('pointercancel',()=>r.touch=null)}
+ render(r);
 });
-const end=document.createElement('div');end.className='cf-end';end.innerHTML='<button type="button" class="cf-next">Continue</button><p class="cf-status" role="status"></p>';stream.appendChild(end);
-const button=end.querySelector('button');
-function submit(){if(submitting)return;submitting=true;save();button.disabled=true;end.querySelector('.cf-status').textContent='Saving…';next.click()}
+const observed=new Map(rows.map(r=>[r.card,r]));
+const observer=supported?new IntersectionObserver(entries=>{entries.forEach(entry=>{const r=observed.get(entry.target);if(r)r.intersects=entry.isIntersecting})},{threshold:0}):null;
+if(observer)rows.forEach(r=>observer.observe(r.card));
+const end=document.createElement('div');end.className='cf-end';end.innerHTML='<button type="button" class="cf-next">Continue</button><p class="cf-status" role="status"></p>';stream.appendChild(end);const button=end.querySelector('button');
+function active(){return supported&&!submitting&&!paused&&document.visibilityState==='visible'&&document.hasFocus()}
+function sample(now){
+ const enabled=active();
+ rows.forEach(r=>{const eligible=enabled&&r.intersects===true&&clock.fraction(r.card.getBoundingClientRect(),innerWidth,innerHeight)>=.5;
+  r.meter.sample(now,eligible);
+  if(r.meter.total>=1&&selected(r)==='c1'){r.codes.c2.click();render(r)}
+ });
+}
+function flush(){if(supported)sample(performance.now());save()}
+function pause(){flush();paused=true;rows.forEach(r=>r.meter.pause())}
+function resume(){paused=false;rows.forEach(r=>r.meter.pause());if(supported)sample(performance.now())}
+function submit(){if(submitting)return;flush();submitting=true;rows.forEach(r=>r.meter.pause());button.disabled=true;end.querySelector('.cf-status').textContent='Saving…';next.click()}
 button.addEventListener('click',submit);
-form.addEventListener('submit',()=>{submitting=true;save();button.disabled=true});
-window.addEventListener('pagehide',save);window.addEventListener('pageshow',e=>{if(e.persisted){submitting=false;button.disabled=false;end.querySelector('.cf-status').textContent='Your selections are restored.'}});
-// Exposure is conservative and is NOT attention: full image loaded, >=50% card
-// visible continuously for >=1000 ms in a visible document. Explicit Like also counts.
-setInterval(()=>{const now=performance.now();rows.forEach(r=>{if(selected(r)!=='c1'||document.visibilityState!=='visible'){r.since=null;return}const rect=r.card.getBoundingClientRect();const visible=Math.max(0,Math.min(rect.bottom,innerHeight)-Math.max(rect.top,0));const horizontal=Math.max(0,Math.min(rect.right,innerWidth)-Math.max(rect.left,0));const ratio=visible*horizontal/(rect.width*rect.height);if(ratio>=.5){if(r.since===null)r.since=now;if(now-r.since>=1000)choose(r,'c2')}else r.since=null})},100);
-native.classList.add('cf-native-hidden');root.querySelector('.question-text')?.classList.add('cf-native-hidden');root.querySelector('.comment')?.classList.add('cf-native-hidden');next.classList.add('cf-native-hidden');save();
+form.addEventListener('submit',()=>{if(!submitting)flush();submitting=true;button.disabled=true});
+window.addEventListener('blur',pause);window.addEventListener('focus',resume);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pause();else resume()});
+window.addEventListener('pagehide',pause);window.addEventListener('beforeunload',flush);
+window.addEventListener('pageshow',e=>{if(e.persisted){submitting=false;button.disabled=false;end.querySelector('.cf-status').textContent='';resume()}});
+function frame(now){if(!submitting){sample(now);if(now-lastSave>=250){save();lastSave=now}}requestAnimationFrame(frame)}
+native.classList.add('cf-native-hidden');timing.classList.add('cf-native-hidden');root.querySelector('.question-text')?.classList.add('cf-native-hidden');root.querySelector('.comment')?.classList.add('cf-native-hidden');next.classList.add('cf-native-hidden');
+save();if(supported)requestAnimationFrame(frame);
 })();
 
 ]]></style>
@@ -63,36 +133,90 @@ def loadSocialDesign(fname):
     return design
 socialDesign = loadSocialDesign("social-design.dat")
 ]]></exec>
-<res label="copy1">A slower morning starts with one good cup. Take a moment before the day begins.</res>
-<res label="copy2">Your next great idea might be waiting outside. Make room for a little fresh air.</res>
-<res label="copy3">A small change of scenery can change the whole day. Where would you go?</res>
-<res label="copy4">Less rushing. More noticing. There is something good in the everyday.</res>
-<res label="copy5">An open afternoon, a loose plan, and something new to discover.</res>
-<res label="copy6">Save a little space for the things you do just because you love them.</res>
-<res label="copy7">Good things do not always need a big plan. Start small and see where it goes.</res>
-<res label="copy8">Find your own rhythm. There is no single right way to spend a free hour.</res>
-<res label="copy9">A fresh perspective is closer than you think. Try a different route today.</res>
-<res label="copy10">A reminder to pause, look around, and enjoy the part you are in.</res>
-<res label="copy11">Little rituals make ordinary days feel a little more like yours.</res>
-<res label="copy12">Here is to making time for something that is not on your to-do list.</res>
-<res label="copy13">An invitation to unplug for a while and see what you notice.</res>
-<res label="copy14">The best kind of reset? Something simple, with room to breathe.</res>
-<res label="copy15">Bring a friend. Bring your curiosity. Leave the complicated plans behind.</res>
-<res label="copy16">A quiet corner of the day, saved just for you.</res>
-<res label="copy17">Consider this your sign to try the thing you have been putting off.</res>
-<res label="copy18">More everyday adventures. Fewer perfect itineraries.</res>
-<res label="copy19">There is a lot to love about taking the long way home.</res>
-<res label="copy20">Make a little room for wonder, even on a very ordinary Tuesday.</res>
-<res label="copy21">Your weekend does not have to be full to feel good.</res>
-<res label="copy22">A change of pace, a new favorite, a story worth sharing.</res>
-<res label="copy23">Take the pressure off. A little enjoyment is reason enough.</res>
-<res label="copy24">A good day can begin with the smallest of decisions.</res>
-<res label="copy25">Choose something that makes you feel a little more present.</res>
-<res label="copy26">Sometimes the best discovery is right in your own neighborhood.</res>
-<res label="copy27">For the moments between big plans: a little everyday inspiration.</res>
-<res label="copy28">A simple pleasure is still a pleasure. Let it count.</res>
-<res label="copy29">Collect moments that feel like you. There is no need to keep score.</res>
-<res label="copy30">Leave a little space in the day for a pleasant surprise.</res>
+<res label="copy1">A tray of tomatoes, garlic and chickpeas: roast until the edges catch, then spoon over toast.</res>
+<res label="byline1">Kitchen notes</res>
+<res label="copy2">The switchback looks steep from below. From the ridge, the whole valley opens up.</res>
+<res label="byline2">Trail journal</res>
+<res label="copy3">Three painted front doors from a walk with no destination. The yellow one wins today.</res>
+<res label="byline3">Around the block</res>
+<res label="copy4">Low tide leaves little channels in the sand. Every walk along this shore takes a different route.</res>
+<res label="byline4">Coastal notebook</res>
+<res label="copy5">Basil cuttings rooted in a glass of water this week. Time to find them a bigger home.</res>
+<res label="byline5">Growing things</res>
+<res label="copy6">A short story collection is ideal for the ten minutes between dinner and doing the dishes.</res>
+<res label="byline6">Reading corner</res>
+<res label="copy7">Try painting the same view with just three colors. The missing colors make you look harder.</res>
+<res label="byline7">Studio notes</res>
+<res label="copy8">The picnic plan: pears, sharp cheese, a blanket and a place under the trees.</res>
+<res label="byline8">Weekend table</res>
+<res label="copy9">The best part of baking bread is the first slice, still warm enough to melt the butter.</res>
+<res label="byline9">Kitchen notes</res>
+<res label="copy10">A quiet back street can turn a routine bike ride into the nicest part of the day.</res>
+<res label="byline10">City rides</res>
+<res label="copy11">Today’s coffee experiment: a slightly coarser grind and a slower pour. A softer cup.</res>
+<res label="byline11">Morning ritual</res>
+<res label="copy12">Pack an extra layer for the ridge. The sheltered start tells you very little about the wind above.</res>
+<res label="byline12">Trail journal</res>
+<res label="copy13">A tiny front garden can hold a lot: rosemary by the gate, marigolds along the path.</res>
+<res label="byline13">Around the block</res>
+<res label="copy14">Sketching boats is mostly an exercise in looking at the spaces between the ropes.</res>
+<res label="byline14">Coastal notebook</res>
+<res label="copy15">Turn a windowsill pot a quarter turn each week to help the stems grow evenly.</res>
+<res label="byline15">Growing things</res>
+<res label="copy16">A book swap idea: tuck a handwritten, spoiler-free recommendation inside the cover.</res>
+<res label="byline16">Reading corner</res>
+<res label="copy17">A scrap of cardboard makes a surprisingly good paint scraper. These hills started as one broad stroke.</res>
+<res label="byline17">Studio notes</res>
+<res label="copy18">Cloudy picnic weather has one advantage: the good patch of grass is usually empty.</res>
+<res label="byline18">Weekend table</res>
+<res label="copy19">Save the heel of the loaf. Tomorrow it becomes crunchy crumbs for a bowl of pasta.</res>
+<res label="byline19">Kitchen notes</res>
+<res label="copy20">A short check before leaving: tires firm, brakes responsive, lights working.</res>
+<res label="byline20">City rides</res>
+<res label="copy21">A favorite mug, a sunny table, and five quiet minutes before the first meeting.</res>
+<res label="byline21">Morning ritual</res>
+<res label="copy22">The long route follows the stream. The short route goes straight up. Today feels like a stream day.</res>
+<res label="byline22">Trail journal</res>
+<res label="copy23">Look up on your next neighborhood walk. There are small architectural details above almost every shop.</res>
+<res label="byline23">Around the block</res>
+<res label="copy24">The horizon is a useful reminder to leave a little empty space in a drawing.</res>
+<res label="byline24">Coastal notebook</res>
+<res label="copy25">A finger in the soil is a better watering reminder than a fixed day on the calendar.</res>
+<res label="byline25">Growing things</res>
+<res label="copy26">Reading two very different books at once means there is always something for the mood you are in.</res>
+<res label="byline26">Reading corner</res>
+<res label="copy27">Mix a little of yesterday’s color into today’s palette. A series starts to feel connected.</res>
+<res label="byline27">Studio notes</res>
+<res label="copy28">An ordinary lunch tastes different outside. Even the nearest patch of green will do.</res>
+<res label="byline28">Weekend table</res>
+<res label="copy29">A small bowl of herby yogurt makes roasted vegetables feel like a complete meal.</res>
+<res label="byline29">Kitchen notes</res>
+<res label="copy30">The route with fewer junctions is sometimes more relaxing than the route with fewer miles.</res>
+<res label="byline30">City rides</res>
+<res label="copy31">Room for the essentials. The Aster Trail daypack keeps your everyday carry simple.</res>
+<res label="byline31">Sponsored · Aster Trail</res>
+<res label="copy32">From the morning train to the afternoon trail. One daypack, plenty of possibilities.</res>
+<res label="byline32">Sponsored · Aster Trail</res>
+<res label="copy33">Take the scenic route. Carry a lighter plan with the Aster Trail daypack.</res>
+<res label="byline33">Sponsored · Aster Trail</res>
+<res label="copy34">A place for your bottle, your book and whatever the day becomes. Meet the Aster Trail daypack.</res>
+<res label="byline34">Sponsored · Aster Trail</res>
+<res label="copy35">Make a little room for the morning. Discover the Kettle &amp; Kind coffee collection.</res>
+<res label="byline35">Sponsored · Kettle &amp; Kind</res>
+<res label="copy36">Your favorite mug deserves a new ritual. Meet the Kettle &amp; Kind morning blend.</res>
+<res label="byline36">Sponsored · Kettle &amp; Kind</res>
+<res label="copy37">A quiet start, one cup at a time. Explore coffee from Kettle &amp; Kind.</res>
+<res label="byline37">Sponsored · Kettle &amp; Kind</res>
+<res label="copy38">Coffee for the moments between plans. Find your next cup with Kettle &amp; Kind.</res>
+<res label="byline38">Sponsored · Kettle &amp; Kind</res>
+<res label="copy39">Bring a little green indoors. Meet the windowsill planters from Leafline Studio.</res>
+<res label="byline39">Sponsored · Leafline Studio</res>
+<res label="copy40">A small home for something growing. Discover Leafline Studio planters.</res>
+<res label="byline40">Sponsored · Leafline Studio</res>
+<res label="copy41">Give your favorite corner a fresh start with a Leafline Studio planter.</res>
+<res label="byline41">Sponsored · Leafline Studio</res>
+<res label="copy42">Simple shapes, room to grow. Explore the Leafline Studio planter collection.</res>
+<res label="byline42">Sponsored · Leafline Studio</res>
 <res label="image1"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: coffee and a quiet morning"><rect width="800" height="400" fill="#f1d7b4"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 290Q230 250 440 300T800 285V400H0Z" fill="#527264"/><ellipse cx="420" cy="308" rx="175" ry="29" fill="#234934" opacity=".15"/><path d="M310 165h180v105q0 50-90 50t-90-50z" fill="#fff7e6"/><path d="M490 180h30q65 0 40 65-12 28-70 20" fill="none" stroke="#fff7e6" stroke-width="22"/><ellipse cx="400" cy="165" rx="90" ry="20" fill="#c97a4c"/><path d="M370 120q-25-30 0-55m60 55q-25-30 0-55" fill="none" stroke="#fff" stroke-width="9" opacity=".7"/></svg>]]></res>
 <res label="image2"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a mountain trail"><rect width="800" height="400" fill="#dae5dc"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 300L220 70l210 240L590 125l210 190v85H0Z" fill="#e6ae71"/><path d="M0 350L250 180l160 140 180-110 210 140v50H0Z" fill="#819d7b"/><path d="M410 400q-150-80-10-130t-50-65" fill="none" stroke="#f6e7c9" stroke-width="37"/></svg>]]></res>
 <res label="image3"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a sunny neighborhood"><rect width="800" height="400" fill="#e8d5cd"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 330H800V400H0" fill="#799587"/><rect x="100" y="180" width="145" height="150" fill="#b27165"/><path d="M90 180l82-65 83 65" fill="#6a715d"/><rect x="150" y="235" width="45" height="65" rx="4" fill="#f9e9c8"/><rect x="325" y="120" width="145" height="210" fill="#e8b97e"/><path d="M315 120l82-65 83 65" fill="#6a715d"/><rect x="375" y="175" width="45" height="65" rx="4" fill="#f9e9c8"/><rect x="550" y="175" width="145" height="155" fill="#f7e6cb"/><path d="M540 175l82-65 83 65" fill="#6a715d"/><rect x="600" y="230" width="45" height="65" rx="4" fill="#f9e9c8"/></svg>]]></res>
@@ -103,10 +227,17 @@ socialDesign = loadSocialDesign("social-design.dat")
 <res label="image8"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a picnic in the park"><rect width="800" height="400" fill="#d9e3ce"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 240q200-100 420 20t380-10v150H0Z" fill="#7d9660"/><path d="M190 285h390l100 100H100Z" fill="#f6e8c8"/><path d="M190 315h400m-400 35h450m-380-65-20 100m100-100v100m90-100 20 100" stroke="#cb956b" stroke-width="12" opacity=".55"/><path d="M340 280h120v65H340Z" fill="#c68b55"/><path d="M355 280q45-70 90 0" fill="none" stroke="#c68b55" stroke-width="12"/></svg>]]></res>
 <res label="image9"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a warm kitchen"><rect width="800" height="400" fill="#e7d8bd"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><rect x="0" y="275" width="800" height="125" fill="#a88862"/><ellipse cx="420" cy="300" rx="170" ry="38" fill="#fff7df"/><path d="M290 225q130-160 260 0v50H290Z" fill="#ce8c4f"/><path d="M350 175l-15 50m75-80-15 70m75-60-15 65" stroke="#f6d097" stroke-width="15"/><path d="M150 280v-130m0 60-35-35m35 65 35-35" stroke="#698a79" stroke-width="12"/></svg>]]></res>
 <res label="image10"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a bike ride"><rect width="800" height="400" fill="#dce4e5"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 315h800v85H0Z" fill="#d7a477"/><circle cx="260" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><circle cx="570" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><path d="M260 275l90-125 65 125H260l230-120 80 120m-220-125-15-32m155 37-15-45h50" fill="none" stroke="#74969b" stroke-width="13"/><path d="M313 115h65" stroke="#486560" stroke-width="14"/></svg>]]></res>
+<res label="image11"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Aster Trail daypack"><rect width="800" height="400" fill="#e8eee4"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#557666" opacity=".15"/><path d="M330 105v-20q0-35 70-35t70 35v20" fill="none" stroke="#557666" stroke-width="17"/><rect x="290" y="85" width="220" height="255" rx="55" fill="#557666"/><rect x="315" y="200" width="170" height="108" rx="25" fill="#fff" opacity=".22"/><path d="M330 225h140m-70-125v60" stroke="#eaddbb" stroke-width="7"/><path d="M270 130q-50 50-15 160m275-160q50 50 15 160" fill="none" stroke="#557666" stroke-width="18"/><path d="M390 145l10-18 10 18" fill="none" stroke="#eaddbb" stroke-width="4"/></svg>]]></res>
+<res label="image12"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Aster Trail daypack"><rect width="800" height="400" fill="#d9e6e7"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#547d8a" opacity=".15"/><path d="M330 105v-20q0-35 70-35t70 35v20" fill="none" stroke="#547d8a" stroke-width="17"/><rect x="290" y="85" width="220" height="255" rx="55" fill="#547d8a"/><rect x="315" y="200" width="170" height="108" rx="25" fill="#fff" opacity=".22"/><path d="M330 225h140m-70-125v60" stroke="#eaddbb" stroke-width="7"/><path d="M270 130q-50 50-15 160m275-160q50 50 15 160" fill="none" stroke="#547d8a" stroke-width="18"/><path d="M390 145l10-18 10 18" fill="none" stroke="#eaddbb" stroke-width="4"/></svg>]]></res>
+<res label="image13"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Kettle and Kind coffee"><rect width="800" height="400" fill="#eee1cb"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#8d5f43" opacity=".15"/><path d="M280 70h180l15 260H265Z" fill="#8d5f43"/><path d="M280 70h180l-10 28H290Z" fill="#fff" opacity=".25"/><rect x="290" y="145" width="150" height="100" rx="5" fill="#fff6e5"/><text x="365" y="188" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="#8d5f43">KETTLE</text><text x="365" y="219" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="#8d5f43">&amp; KIND</text><path d="M505 235h115v60q0 40-58 40t-57-40z" fill="#fff6e5"/><path d="M620 245q55-8 40 35-7 20-40 10" fill="none" stroke="#fff6e5" stroke-width="14"/><ellipse cx="562" cy="235" rx="57" ry="12" fill="#694836"/></svg>]]></res>
+<res label="image14"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Kettle and Kind coffee"><rect width="800" height="400" fill="#e4d2bd"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#b77e4f" opacity=".15"/><path d="M280 70h180l15 260H265Z" fill="#b77e4f"/><path d="M280 70h180l-10 28H290Z" fill="#fff" opacity=".25"/><rect x="290" y="145" width="150" height="100" rx="5" fill="#fff6e5"/><text x="365" y="188" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="#b77e4f">KETTLE</text><text x="365" y="219" text-anchor="middle" font-family="Georgia,serif" font-size="21" fill="#b77e4f">&amp; KIND</text><path d="M505 235h115v60q0 40-58 40t-57-40z" fill="#fff6e5"/><path d="M620 245q55-8 40 35-7 20-40 10" fill="none" stroke="#fff6e5" stroke-width="14"/><ellipse cx="562" cy="235" rx="57" ry="12" fill="#694836"/></svg>]]></res>
+<res label="image15"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Leafline Studio planter"><rect width="800" height="400" fill="#e4e9d9"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#69875c" opacity=".15"/><path d="M290 220h220l-30 120H320Z" fill="#69875c"/><path d="M400 225V75m0 100-70-55m70 80 65-50" fill="none" stroke="#526e42" stroke-width="10"/><ellipse cx="338" cy="115" rx="55" ry="27" transform="rotate(30 338 115)" fill="#708c53"/><ellipse cx="455" cy="135" rx="58" ry="28" transform="rotate(-30 455 135)" fill="#8ba16b"/><ellipse cx="400" cy="70" rx="27" ry="50" transform="rotate(15 400 70)" fill="#607c49"/><path d="M325 260h150m-140 25h130" stroke="#fff" opacity=".25" stroke-width="7"/></svg>]]></res>
+<res label="image16"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: Leafline Studio planter"><rect width="800" height="400" fill="#eaded2"/><circle cx="630" cy="90" r="110" fill="#fff" opacity=".3"/><ellipse cx="400" cy="345" rx="175" ry="22" fill="#b17b5d" opacity=".15"/><path d="M290 220h220l-30 120H320Z" fill="#b17b5d"/><path d="M400 225V75m0 100-70-55m70 80 65-50" fill="none" stroke="#526e42" stroke-width="10"/><ellipse cx="338" cy="115" rx="55" ry="27" transform="rotate(30 338 115)" fill="#708c53"/><ellipse cx="455" cy="135" rx="58" ry="28" transform="rotate(-30 455 135)" fill="#8ba16b"/><ellipse cx="400" cy="70" rx="27" ry="50" transform="rotate(15 400 70)" fill="#607c49"/><path d="M325 260h150m-140 25h130" stroke="#fff" opacity=".25" stroke-width="7"/></svg>]]></res>
 <number label="DesignVersion" where="execute" size="3"><title>Assigned .dat design version</title><exec>
 if DesignVersion.val is None:
     DesignVersion.val = random.randint(1,8)
 </exec></number>
+<number label="DesignRevision" where="execute" size="2"><title>Design and timing schema revision</title><exec>DesignRevision.val = 2</exec></number>
 <number label="SessionKey" where="execute" size="12"><title>Anonymous response cache key</title><exec>
 if SessionKey.val is None:
     SessionKey.val = random.randint(100000000,999999999)
@@ -148,6 +279,10 @@ if SessionKey.val is None:
 <col label="order">Display order</col>
 <col label="copy">Copy level</col>
 <col label="image">Image level</col>
+<col label="kind">0 organic; 1 sponsored</col>
+<col label="creative">Creative identity; 0 organic</col>
+<col label="campaign">Campaign identity; 0 organic</col>
+<col label="context">Feed context identity</col>
 <exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,1,i)]
@@ -157,12 +292,53 @@ for i in range(1,31):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>
-<html label="Header1" where="survey"><![CDATA[<div class="cf-config" data-feed="1" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<number label="Time1" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>
+<exec>
+for r in Time1.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>
+<html label="Header1" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="1" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
 <radio label="Feed1" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 1 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,1,i)]
-    Feed1.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+    Feed1.rows[i-1].text = '&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])
 </exec>
 <row label="r1">Item 1</row>
 <row label="r2">Item 2</row>
@@ -231,6 +407,10 @@ for i in range(1,31):
 <col label="order">Display order</col>
 <col label="copy">Copy level</col>
 <col label="image">Image level</col>
+<col label="kind">0 organic; 1 sponsored</col>
+<col label="creative">Creative identity; 0 organic</col>
+<col label="campaign">Campaign identity; 0 organic</col>
+<col label="context">Feed context identity</col>
 <exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,2,i)]
@@ -240,12 +420,53 @@ for i in range(1,31):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>
-<html label="Header2" where="survey"><![CDATA[<div class="cf-config" data-feed="2" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<number label="Time2" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>
+<exec>
+for r in Time2.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>
+<html label="Header2" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="2" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
 <radio label="Feed2" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 2 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,2,i)]
-    Feed2.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+    Feed2.rows[i-1].text = '&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])
 </exec>
 <row label="r1">Item 1</row>
 <row label="r2">Item 2</row>
@@ -314,6 +535,10 @@ for i in range(1,31):
 <col label="order">Display order</col>
 <col label="copy">Copy level</col>
 <col label="image">Image level</col>
+<col label="kind">0 organic; 1 sponsored</col>
+<col label="creative">Creative identity; 0 organic</col>
+<col label="campaign">Campaign identity; 0 organic</col>
+<col label="context">Feed context identity</col>
 <exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,3,i)]
@@ -323,12 +548,53 @@ for i in range(1,31):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>
-<html label="Header3" where="survey"><![CDATA[<div class="cf-config" data-feed="3" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<number label="Time3" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>
+<exec>
+for r in Time3.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>
+<html label="Header3" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="3" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
 <radio label="Feed3" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 3 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,3,i)]
-    Feed3.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+    Feed3.rows[i-1].text = '&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])
 </exec>
 <row label="r1">Item 1</row>
 <row label="r2">Item 2</row>
@@ -397,6 +663,10 @@ for i in range(1,31):
 <col label="order">Display order</col>
 <col label="copy">Copy level</col>
 <col label="image">Image level</col>
+<col label="kind">0 organic; 1 sponsored</col>
+<col label="creative">Creative identity; 0 organic</col>
+<col label="campaign">Campaign identity; 0 organic</col>
+<col label="context">Feed context identity</col>
 <exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,4,i)]
@@ -406,12 +676,53 @@ for i in range(1,31):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>
-<html label="Header4" where="survey"><![CDATA[<div class="cf-config" data-feed="4" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<number label="Time4" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>
+<exec>
+for r in Time4.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>
+<html label="Header4" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="4" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
 <radio label="Feed4" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 4 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,4,i)]
-    Feed4.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+    Feed4.rows[i-1].text = '&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])
 </exec>
 <row label="r1">Item 1</row>
 <row label="r2">Item 2</row>
@@ -480,6 +791,10 @@ for i in range(1,31):
 <col label="order">Display order</col>
 <col label="copy">Copy level</col>
 <col label="image">Image level</col>
+<col label="kind">0 organic; 1 sponsored</col>
+<col label="creative">Creative identity; 0 organic</col>
+<col label="campaign">Campaign identity; 0 organic</col>
+<col label="context">Feed context identity</col>
 <exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,5,i)]
@@ -489,12 +804,53 @@ for i in range(1,31):
     r.order.val = a[2]
     r.copy.val = a[0]
     r.image.val = a[1]
+    r.kind.val = a[4]
+    r.creative.val = a[5]
+    r.campaign.val = a[6]
+    r.context.val = a[7]
 </exec></number>
-<html label="Header5" where="survey"><![CDATA[<div class="cf-config" data-feed="5" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<number label="Time5" optional="1" size="12" ss:questionClassNames="cf-timing"><title>Visible time measurement</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="ms">Visible milliseconds</col><col label="state">Measurement state</col>
+<exec>
+for r in Time5.rows:
+    if r.ms.val is None: r.ms.val = -1
+    if r.state.val is None: r.state.val = 0
+</exec></number>
+<html label="Header5" where="survey"><![CDATA[<div class="cf-config" data-revision="2" data-feed="5" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
 <radio label="Feed5" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 5 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
 for i in range(1,31):
     a = socialDesign[(DesignVersion.val,5,i)]
-    Feed5.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+    Feed5.rows[i-1].text = '&lt;div class="cf-source"&gt;%s&lt;/div&gt;&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["byline%d" % a[0]], res["copy%d" % a[0]], res["image%d" % a[1]])
 </exec>
 <row label="r1">Item 1</row>
 <row label="r2">Item 2</row>
