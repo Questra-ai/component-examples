@@ -1,13 +1,6 @@
 <survey name="Weekend ideas" alt="Weekend ideas" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source">
-<radio label="QSwipe" type="rating" optional="0" ss:questionClassNames="qswipe">
-<title>Make room for a great weekend.</title>
-<comment>How do you feel about each activity? Choose Dislike, Skip, or Like for every idea.</comment>
-<row label="r1">A sunrise walk</row>
-<row label="r2">Trying a new recipe</row>
-<row label="r3">An afternoon at a museum</row>
-<row label="r4">A picnic in the park</row>
-<col label="c1" value="1">Dislike</col><col label="c2" value="2">Skip</col><col label="c3" value="3">Like</col>
-<style name="question.after"><![CDATA[<style>
+<style name="respview.client.css" mode="after"><![CDATA[
+<style>/* qsw-shared-css */
 .question.qswipe { --qsw-ink:#243831; --qsw-green:#16624b; }
 .question.qswipe .qsw-ui { overflow:clip; padding:12px 10px; max-width:480px; margin:24px auto 12px; color:var(--qsw-ink); font:16px/1.5 system-ui,sans-serif; }
 .question.qswipe .qsw-ui * { box-sizing:border-box; }
@@ -49,22 +42,79 @@
 .question.qswipe .qsw-cue[data-direction="c1"] { color:#a34432; left:auto; right:24px; transform:rotate(10deg); }
 .question.qswipe .qsw-cue[data-direction="c2"] { color:#66548a; }
 
-form.qsw-form #btn_continue.qsw-continue-hidden { display:none!important; }
+form.qsw-form .qsw-continue-hidden { display:none!important; }
 .question.qswipe .qsw-completion { padding:30px 12px; margin:0; text-align:center; font:600 18px/1.5 system-ui,sans-serif; }
 
-</style><script>jQuery(function () {
-/* Progressive enhancement for Decipher compat 144 radio matrices.
- * Native inputs are the sole answer model. Completion uses the native Continue button. */
+</style>
+]]></style>
+<style name="respview.client.js" mode="after" wrap="ready"><![CDATA[
+/* qsw-shared-js: one definition per respondent page; native radios are the only answer model. */
 (function () {
   'use strict';
-  document.querySelectorAll('.question.qswipe').forEach(function (root) {
-    if (root.dataset.swipeReady) return;
+  document.querySelectorAll('form').forEach(function (form) {
+    if (form.dataset.qswSharedReady) return;
+    var roots = Array.from(form.querySelectorAll('.question.qswipe'));
+    var button = form.querySelector('#btn_continue, #btn_finish');
+    if (!roots.length || !button || button.disabled) return;
+    var instances = [], attempted = false, pending = false, submitSeen = false, recovering = false, recoveryTimer = null;
+    // Never infer another question type's completion or bypass its validation.
+    function autoEligible() {
+      var visible = Array.from(form.querySelectorAll('.question')).filter(function (q) { return q.getClientRects().length > 0; });
+      return visible.length > 0 && visible.every(function (q) { return instances.some(function (i) { return i.root === q; }); });
+    }
+    function recover(message) {
+      window.clearTimeout(recoveryTimer);
+      recovering = true; pending = false; submitSeen = false;
+      instances.forEach(function (i) { i.recover(message || 'Please review your selected answers, then use Continue.'); });
+      button.classList.remove('qsw-continue-hidden'); button.disabled = false;
+    }
+    function beginRequest() {
+      pending = true; submitSeen = false;
+      instances.forEach(function (i) { i.saving(); });
+      recoveryTimer = window.setTimeout(function () {
+        recover('This is taking longer than expected. Your answers are still selected. Use Continue to try again.');
+      }, 12000);
+    }
+    var coordinator = { complete: function () {
+      if (!autoEligible()) { button.classList.remove('qsw-continue-hidden'); return; }
+      if (attempted || pending || recovering || !instances.every(function (i) { return i.done() && i.allAnswered(); })) return;
+      attempted = true;
+      if (button.disabled || !button.isConnected) { recover(); return; }
+      try { button.click(); } catch (error) { recover(); }
+    }};
+    roots.forEach(function (root) {
+      try {
+        var instance = initialize(root, form, coordinator);
+        if (instance) instances.push(instance);
+      } catch (error) {
+        // A failed question keeps native fields available; it also prevents automatic submission.
+        var native = root.querySelector('.answers'); if (native) native.hidden = false;
+        var partial = root.querySelector('.qsw-ui'); if (partial) partial.remove();
+        delete root.dataset.swipeReady;
+      }
+    });
+    if (!instances.length) return;
+    form.dataset.qswSharedReady = 'true'; form.classList.add('qsw-form');
+    if (autoEligible()) button.classList.add('qsw-continue-hidden');
+    button.addEventListener('click', function (event) {
+      if (pending) { event.preventDefault(); event.stopImmediatePropagation(); return; }
+      beginRequest();
+    }, true);
+    form.addEventListener('submit', function (event) {
+      if (submitSeen) { event.preventDefault(); event.stopImmediatePropagation(); return; }
+      if (!pending) beginRequest();
+      submitSeen = true;
+    }, true);
+    form.addEventListener('invalid', function () { recover('Please check the highlighted answers, then use Continue.'); }, true);
+    window.addEventListener('pageshow', function (event) { if (event.persisted) recover(); });
+    // Server redisplay of restored values must never cause a submission loop.
+    if (instances.every(function (i) { return i.allAnswered(); })) recover();
+  });
+  function initialize(root, form, coordinator) {
+    if (root.dataset.swipeReady) return null;
     var native = root.querySelector('.answers');
     var groups = new Map();
-    var form = root.closest('form');
-    var continueButton = form && form.querySelector('#btn_continue');
-    // Auto-completion is supported only on a single-question page.
-    if (!native || !continueButton || continueButton.disabled || form.querySelectorAll('.question').length !== 1) return;
+    if (!native) return null;
     native.querySelectorAll('input[type="radio"]').forEach(function (input) {
       if (!groups.has(input.name)) groups.set(input.name, []);
       groups.get(input.name).push(input);
@@ -112,8 +162,7 @@ form.qsw-form #btn_continue.qsw-continue-hidden { display:none!important; }
     var cue = card.querySelector('.qsw-cue');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     var busy = false, timer = null, pointer = null;
-    var phase = 'answering', autoAttempted = false;
-    var requestPending = false, submitSeen = false, recoveryTimer = null;
+    var phase = 'answering';
     function leaveDeck(message) {
       lock(true); pointer = null;
       stack.hidden = true; actions.hidden = true;
@@ -123,30 +172,18 @@ form.qsw-form #btn_continue.qsw-continue-hidden { display:none!important; }
       completion.focus();
     }
     function recover(message) {
-      window.clearTimeout(timer); window.clearTimeout(recoveryTimer);
-      phase = 'recovery'; requestPending = false; submitSeen = false;
-      leaveDeck(message || 'Your answers are still selected. Please use Continue to try again.');
-      // Return the original controls so validation or a stalled request cannot trap the respondent.
+      window.clearTimeout(timer);
+      phase = 'recovery';
+      leaveDeck(message);
       native.hidden = false;
-      continueButton.classList.remove('qsw-continue-hidden');
-      continueButton.disabled = false;
-    }
-    function beginRequest() {
-      phase = 'submitting'; requestPending = true; submitSeen = false;
-      leaveDeck('Saving your answers…');
-      recoveryTimer = window.setTimeout(function () {
-        recover('This is taking longer than expected. Your answers are still selected. Use Continue to try again.');
-      }, 12000);
     }
     function completeDeck() {
-      if (phase !== 'answering' || autoAttempted) return;
-      if (!rows.every(function (row) { return selected(row); })) return;
-      autoAttempted = true;
-      leaveDeck('Saving your answers…');
-      if (continueButton.disabled || !continueButton.isConnected) { recover(); return; }
-      // Retain Decipher's click, validation and submit handlers; never call form.submit().
-      try { continueButton.click(); } catch (error) { recover(); }
+      if (phase !== 'answering' || !allAnswered()) return;
+      phase = 'done';
+      leaveDeck('Done.');
+      coordinator.complete();
     }
+    function allAnswered() { return rows.every(function (row) { return selected(row); }); }
     function lock(value) {
       busy = value;
       ui.querySelectorAll('[data-answer]').forEach(function (b) { b.setAttribute('aria-disabled', String(value)); });
@@ -247,31 +284,9 @@ form.qsw-form #btn_continue.qsw-continue-hidden { display:none!important; }
     card.addEventListener('pointercancel', endGesture);
     card.addEventListener('lostpointercapture', function () { if (pointer && !busy) { pointer = null; snapBack(); } });
     native.addEventListener('change', function () { if (!busy && phase === 'answering') show(); });
-    continueButton.addEventListener('click', function (event) {
-      if (requestPending) { event.preventDefault(); event.stopImmediatePropagation(); return; }
-      beginRequest();
-    }, true);
-    form.addEventListener('submit', function (event) {
-      if (submitSeen) { event.preventDefault(); event.stopImmediatePropagation(); return; }
-      if (!requestPending) beginRequest();
-      submitSeen = true;
-    }, true);
-    form.addEventListener('invalid', function () {
-      recover('Please check the highlighted answers, then use Continue.');
-    }, true);
-    window.addEventListener('pageshow', function (event) {
-      // BFCache re-entry never automatically resends an earlier submission.
-      if (event.persisted) recover('Please review your selected answers, then use Continue.');
-    });
     // Commit the enhancement only after successful discovery and setup.
     show(); native.before(ui); native.hidden = true; root.dataset.swipeReady = 'true';
-    form.classList.add('qsw-form');
-    continueButton.classList.add('qsw-continue-hidden');
-    // A server validation redisplay with all values restored must not loop-submit.
-    if (rows.every(function (row) { return selected(row); })) {
-      autoAttempted = true;
-      recover('Please review your selected answers, then use Continue.');
-    }
+    if (allAnswered()) { phase = 'done'; leaveDeck('Done.'); }
     // Remove only observed test-only notices, never validation or other warnings.
     var page = root.closest('.survey-body');
     if (page) {
@@ -285,10 +300,23 @@ form.qsw-form #btn_continue.qsw-continue-hidden { display:none!important; }
         }
       });
     }
-  });
+    return { root: root, allAnswered: allAnswered,
+      done: function () { return phase === 'done'; },
+      saving: function () { window.clearTimeout(timer); phase = 'submitting'; leaveDeck('Saving your answers…'); },
+      recover: recover
+    };
+  }
 }());
 
-});</script>]]></style>
+]]></style>
+<radio label="QSwipe" type="rating" optional="0" ss:questionClassNames="qswipe">
+<title>Make room for a great weekend.</title>
+<comment>How do you feel about each activity? Choose Dislike, Skip, or Like for every idea.</comment>
+<row label="r1">A sunrise walk</row>
+<row label="r2">Trying a new recipe</row>
+<row label="r3">An afternoon at a museum</row>
+<row label="r4">A picnic in the park</row>
+<col label="c1" value="1">Dislike</col><col label="c2" value="2">Skip</col><col label="c3" value="3">Like</col>
 </radio><suspend/>
 
 </survey>
