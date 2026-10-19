@@ -1,0 +1,530 @@
+<survey name="Social feed" alt="Social feed" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source">
+<style name="respview.client.css" mode="after"><![CDATA[
+<style>body.cf-page{background:#fff!important;color:#252b28;font-family:Arial,sans-serif}.cf-page #survey{max-width:720px;margin:auto}.cf-page .survey-body,.cf-page .survey-container{background:transparent;box-shadow:none}.cf-page .survey-header,.cf-page .progress-bar,.cf-page .logo,.cf-page .survey-progress,.cf-page .footer,.cf-page .survey-footer,.cf-page .page-footer{display:none}.cf-page .question{padding:0!important}.cf-page .instruction-text,.cf-page .cf-feed .question-text,.cf-page .survey-info-text,.cf-page .survey-warning-text{display:none}.cf-page .comment-text{font-weight:normal;font-size:inherit}.cf-page [id^="comment_Header"]{display:none}.cf-layout{max-width:600px;margin:24px auto}.cf-instructions{margin-bottom:24px}.cf-round{font-size:13px;color:#707772;margin-bottom:12px}.cf-instructions h2{font:600 23px/1.3 Arial,sans-serif;margin:0 0 10px}.cf-instructions p{font:14px/1.6 Arial,sans-serif;color:#535b56;margin:0}.cf-card{background:#fff;border:1px solid #dfe4e0;border-radius:10px;overflow:hidden;margin-bottom:20px}.cf-copy{font-size:16px;line-height:1.5;padding:20px;margin:0!important;color:#29332c}.cf-art{background:#ecefe5;touch-action:pan-y;user-select:none}.cf-art svg{display:block;width:100%;height:auto;aspect-ratio:2/1}.cf-actions{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}.cf-like{border:1px solid #dbe4da!important;background:#fff!important;color:#49634f!important;border-radius:22px!important;padding:10px 17px!important;font-size:13px!important;cursor:pointer;min-height:42px;box-shadow:none!important;transition:background .15s,transform .15s}.cf-like[aria-pressed=true]{background:#edf5ec!important;color:#2e6645!important;border-color:#9fc1a2!important}.cf-like:active{transform:scale(.96)}.cf-like:focus-visible,.cf-next:focus-visible{outline:3px solid #517660;outline-offset:4px}.cf-post-id{font-size:11px;color:#7f8982}.cf-next,.cf-page #btn_continue{background:#355b44!important;color:white!important;border:0!important;border-radius:5px!important;padding:13px 26px!important;font-size:15px!important;cursor:pointer;min-height:46px}.cf-next[disabled]{opacity:.55}.cf-end{padding:12px 0 24px;text-align:left}.cf-status{min-height:18px;font-size:12px;color:#6b7a6c}.cf-native-hidden{display:none!important}.cf-page .survey-buttons{padding-bottom:24px}.cf-sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+\@media(max-width:760px){.cf-layout{margin:16px auto}.cf-instructions h2{font-size:21px}.cf-copy{padding:16px}.cf-page #survey{padding:0 8px}.cf-card{margin-bottom:16px}}
+\@media(prefers-reduced-motion:reduce){.cf-like{transition:none}html{scroll-behavior:auto}}
+.cf-page .survey-info,.cf-page .survey-warning{display:none}
+</style>
+]]></style>
+<style name="respview.client.js" mode="after" wrap="ready"><![CDATA[
+(function(){
+'use strict';
+document.body.classList.add('cf-page');
+if(document.querySelector('#comment_Initialize')){
+ const start=document.querySelector('#btn_continue');
+ if(start && !start.disabled)start.click();
+ return;
+}
+const root=document.querySelector('.question.cf-feed');
+if(!root)return;
+const native=root.querySelector('.answers'),form=root.closest('form'),next=form&&form.querySelector('#btn_continue');
+const config=document.querySelector('.cf-config');
+if(!native||!next||!config)return;
+const groups=new Map();
+native.querySelectorAll('input[type=radio]').forEach(i=>{if(!groups.has(i.name))groups.set(i.name,[]);groups.get(i.name).push(i)});
+const rows=Array.from(groups.values()).map(inputs=>{const tr=inputs[0].closest('tr');const legend=tr&&tr.querySelector('.row-legend');const codes={};inputs.forEach(input=>{const headers=input.closest('td')?.getAttribute('headers')||'';['c1','c2','c3'].forEach(code=>{if(headers.split(/\s+/).some(h=>h.endsWith('_'+code)))codes[code]=input})});return {inputs,legend,codes,card:null,since:null,last:0,touch:null};});
+if(!rows.length||rows.some(r=>!r.legend||Object.keys(r.codes).length!==3))return;
+const feed=Number(config.dataset.feed),count=Number(config.dataset.feeds),version=config.dataset.version;
+const storageKey='commonplace-v1:'+location.pathname+':'+config.dataset.session+':'+feed+':'+version;
+let restored=null;try{restored=JSON.parse(sessionStorage.getItem(storageKey)||'null')}catch(e){}
+let submitting=false;
+function selected(r){return ['c1','c2','c3'].find(c=>r.codes[c].checked)||'c1'}
+function choose(r,c){if(!r.codes[c].checked)r.codes[c].click();render(r);save()}
+function save(){try{sessionStorage.setItem(storageKey,JSON.stringify(rows.map(r=>selected(r))))}catch(e){}}
+function render(r){if(!r.card)return;const yes=selected(r)==='c3';const b=r.card.querySelector('.cf-like');b.setAttribute('aria-pressed',String(yes));b.innerHTML=(yes?'♥':'♡')+' &nbsp;'+(yes?'Liked':'Like');const total=rows.filter(r=>selected(r)==='c3').length;ui.querySelector('.cf-count').textContent=total+' liked in this feed';}
+const ui=document.createElement('section');ui.className='cf-layout';ui.innerHTML='<div class="cf-instructions"><div class="cf-round">Feed '+feed+' of '+count+'</div><h2>Which posts stand out to you?</h2><p>Scroll and like any posts that stand out. Double-tap an image to like it; tap Like again to undo. You may continue without liking any posts.</p><div class="cf-count cf-sr" aria-live="polite"></div></div><div class="cf-stream"></div>';
+root.appendChild(ui);const stream=ui.querySelector('.cf-stream');
+rows.forEach((r,i)=>{const card=document.createElement('article');r.card=card;card.className='cf-card';card.dataset.item=String(i+1);card.innerHTML=r.legend.innerHTML+'<div class="cf-actions"><button type="button" class="cf-like" aria-label="Like post '+(i+1)+'" aria-pressed="false">♡ Like</button><span class="cf-post-id">'+String(i+1).padStart(2,'0')+' / '+rows.length+'</span></div>';stream.appendChild(card);if(restored&&['c1','c2','c3'].includes(restored[i]))r.codes[restored[i]].click();else if(!r.inputs.some(x=>x.checked))r.codes.c1.click();
+function toggle(){const now=performance.now();if(submitting||now-r.last<420)return;r.last=now;choose(r,selected(r)==='c3'?'c2':'c3')}
+card.querySelector('.cf-like').addEventListener('click',e=>{if(e.detail>1)return;toggle()});
+const art=card.querySelector('.cf-art');if(art){art.addEventListener('dblclick',e=>{e.preventDefault();toggle()});art.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')return;const now=performance.now();const t=r.touch;if(t&&now-t.time<340&&Math.hypot(e.clientX-t.x,e.clientY-t.y)<25){toggle();r.touch=null}else r.touch={time:now,x:e.clientX,y:e.clientY}});art.addEventListener('pointercancel',()=>r.touch=null)}render(r);
+});
+const end=document.createElement('div');end.className='cf-end';end.innerHTML='<button type="button" class="cf-next">Continue</button><p class="cf-status" role="status"></p>';stream.appendChild(end);
+const button=end.querySelector('button');
+function submit(){if(submitting)return;submitting=true;save();button.disabled=true;end.querySelector('.cf-status').textContent='Saving…';next.click()}
+button.addEventListener('click',submit);
+form.addEventListener('submit',()=>{submitting=true;save();button.disabled=true});
+window.addEventListener('pagehide',save);window.addEventListener('pageshow',e=>{if(e.persisted){submitting=false;button.disabled=false;end.querySelector('.cf-status').textContent='Your selections are restored.'}});
+// Exposure is conservative and is NOT attention: full image loaded, >=50% card
+// visible continuously for >=1000 ms in a visible document. Explicit Like also counts.
+setInterval(()=>{const now=performance.now();rows.forEach(r=>{if(selected(r)!=='c1'||document.visibilityState!=='visible'){r.since=null;return}const rect=r.card.getBoundingClientRect();const visible=Math.max(0,Math.min(rect.bottom,innerHeight)-Math.max(rect.top,0));const horizontal=Math.max(0,Math.min(rect.right,innerWidth)-Math.max(rect.left,0));const ratio=visible*horizontal/(rect.width*rect.height);if(ratio>=.5){if(r.since===null)r.since=now;if(now-r.since>=1000)choose(r,'c2')}else r.since=null})},100);
+native.classList.add('cf-native-hidden');root.querySelector('.question-text')?.classList.add('cf-native-hidden');root.querySelector('.comment')?.classList.add('cf-native-hidden');next.classList.add('cf-native-hidden');save();
+})();
+
+]]></style>
+<exec when="init"><![CDATA[
+def loadSocialDesign(fname):
+    f = open("%s/%s" % (gv.survey.path, fname))
+    records = [line.strip("\r\n").split("\t") for line in f.readlines()]
+    f.close()
+    design = {}
+    for row in records[1:]:
+        design[(int(row[0]), int(row[1]), int(row[2]))] = [int(n) for n in row[3:]]
+    return design
+socialDesign = loadSocialDesign("social-design.dat")
+]]></exec>
+<res label="copy1">A slower morning starts with one good cup. Take a moment before the day begins.</res>
+<res label="copy2">Your next great idea might be waiting outside. Make room for a little fresh air.</res>
+<res label="copy3">A small change of scenery can change the whole day. Where would you go?</res>
+<res label="copy4">Less rushing. More noticing. There is something good in the everyday.</res>
+<res label="copy5">An open afternoon, a loose plan, and something new to discover.</res>
+<res label="copy6">Save a little space for the things you do just because you love them.</res>
+<res label="copy7">Good things do not always need a big plan. Start small and see where it goes.</res>
+<res label="copy8">Find your own rhythm. There is no single right way to spend a free hour.</res>
+<res label="copy9">A fresh perspective is closer than you think. Try a different route today.</res>
+<res label="copy10">A reminder to pause, look around, and enjoy the part you are in.</res>
+<res label="copy11">Little rituals make ordinary days feel a little more like yours.</res>
+<res label="copy12">Here is to making time for something that is not on your to-do list.</res>
+<res label="copy13">An invitation to unplug for a while and see what you notice.</res>
+<res label="copy14">The best kind of reset? Something simple, with room to breathe.</res>
+<res label="copy15">Bring a friend. Bring your curiosity. Leave the complicated plans behind.</res>
+<res label="copy16">A quiet corner of the day, saved just for you.</res>
+<res label="copy17">Consider this your sign to try the thing you have been putting off.</res>
+<res label="copy18">More everyday adventures. Fewer perfect itineraries.</res>
+<res label="copy19">There is a lot to love about taking the long way home.</res>
+<res label="copy20">Make a little room for wonder, even on a very ordinary Tuesday.</res>
+<res label="copy21">Your weekend does not have to be full to feel good.</res>
+<res label="copy22">A change of pace, a new favorite, a story worth sharing.</res>
+<res label="copy23">Take the pressure off. A little enjoyment is reason enough.</res>
+<res label="copy24">A good day can begin with the smallest of decisions.</res>
+<res label="copy25">Choose something that makes you feel a little more present.</res>
+<res label="copy26">Sometimes the best discovery is right in your own neighborhood.</res>
+<res label="copy27">For the moments between big plans: a little everyday inspiration.</res>
+<res label="copy28">A simple pleasure is still a pleasure. Let it count.</res>
+<res label="copy29">Collect moments that feel like you. There is no need to keep score.</res>
+<res label="copy30">Leave a little space in the day for a pleasant surprise.</res>
+<res label="image1"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: coffee and a quiet morning"><rect width="800" height="400" fill="#f1d7b4"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 290Q230 250 440 300T800 285V400H0Z" fill="#527264"/><ellipse cx="420" cy="308" rx="175" ry="29" fill="#234934" opacity=".15"/><path d="M310 165h180v105q0 50-90 50t-90-50z" fill="#fff7e6"/><path d="M490 180h30q65 0 40 65-12 28-70 20" fill="none" stroke="#fff7e6" stroke-width="22"/><ellipse cx="400" cy="165" rx="90" ry="20" fill="#c97a4c"/><path d="M370 120q-25-30 0-55m60 55q-25-30 0-55" fill="none" stroke="#fff" stroke-width="9" opacity=".7"/></svg>]]></res>
+<res label="image2"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a mountain trail"><rect width="800" height="400" fill="#dae5dc"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 300L220 70l210 240L590 125l210 190v85H0Z" fill="#e6ae71"/><path d="M0 350L250 180l160 140 180-110 210 140v50H0Z" fill="#819d7b"/><path d="M410 400q-150-80-10-130t-50-65" fill="none" stroke="#f6e7c9" stroke-width="37"/></svg>]]></res>
+<res label="image3"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a sunny neighborhood"><rect width="800" height="400" fill="#e8d5cd"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 330H800V400H0" fill="#799587"/><rect x="100" y="180" width="145" height="150" fill="#b27165"/><path d="M90 180l82-65 83 65" fill="#6a715d"/><rect x="150" y="235" width="45" height="65" rx="4" fill="#f9e9c8"/><rect x="325" y="120" width="145" height="210" fill="#e8b97e"/><path d="M315 120l82-65 83 65" fill="#6a715d"/><rect x="375" y="175" width="45" height="65" rx="4" fill="#f9e9c8"/><rect x="550" y="175" width="145" height="155" fill="#f7e6cb"/><path d="M540 175l82-65 83 65" fill="#6a715d"/><rect x="600" y="230" width="45" height="65" rx="4" fill="#f9e9c8"/></svg>]]></res>
+<res label="image4"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a coastal escape"><rect width="800" height="400" fill="#dae4e8"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 180h800v220H0Z" fill="#8aa8af"/><path d="M0 310q180-90 390 5t410-5v90H0Z" fill="#f5dfb0"/><path d="M480 190l-120 0 120-135z" fill="#fff8e8"/><path d="M340 200h180l-30 27H375Z" fill="#d9ac65"/><path d="M70 240h140m390 35h110" stroke="#f4f4e1" stroke-width="5"/></svg>]]></res>
+<res label="image5"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a growing garden"><rect width="800" height="400" fill="#ece4c7"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><rect x="0" y="315" width="800" height="85" fill="#d2986e"/><path d="M110 255h110l-18 90h-75z" fill="#6e8e69"/><path d="M165 260v-145" stroke="#4f6d45" stroke-width="9"/><ellipse cx="136" cy="175" rx="35" ry="18" transform="rotate(35 136 175)" fill="#6d8c54"/><ellipse cx="190" cy="135" rx="38" ry="21" transform="rotate(-35 190 135)" fill="#789c63"/><path d="M345 255h110l-18 90h-75z" fill="#6e8e69"/><path d="M400 260v-145" stroke="#4f6d45" stroke-width="9"/><ellipse cx="371" cy="175" rx="35" ry="18" transform="rotate(35 371 175)" fill="#6d8c54"/><ellipse cx="425" cy="135" rx="38" ry="21" transform="rotate(-35 425 135)" fill="#789c63"/><path d="M580 255h110l-18 90h-75z" fill="#6e8e69"/><path d="M635 260v-145" stroke="#4f6d45" stroke-width="9"/><ellipse cx="606" cy="175" rx="35" ry="18" transform="rotate(35 606 175)" fill="#6d8c54"/><ellipse cx="660" cy="135" rx="38" ry="21" transform="rotate(-35 660 135)" fill="#789c63"/></svg>]]></res>
+<res label="image6"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a stack of books"><rect width="800" height="400" fill="#e4d8df"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><rect x="0" y="325" width="800" height="75" fill="#739893"/><rect x="210" y="275" width="390" height="45" rx="6" fill="#9d7b82"/><path d="M230 287h350m-350 9h350" stroke="#fff4d9" stroke-width="4"/><rect x="245" y="225" width="340" height="45" rx="6" fill="#ead2a1"/><path d="M265 237h300m-300 9h300" stroke="#fff4d9" stroke-width="4"/><rect x="225" y="175" width="380" height="45" rx="6" fill="#799a8d"/><path d="M245 187h340m-340 9h340" stroke="#fff4d9" stroke-width="4"/><rect x="275" y="125" width="295" height="45" rx="6" fill="#b78666"/><path d="M295 137h255m-255 9h255" stroke="#fff4d9" stroke-width="4"/></svg>]]></res>
+<res label="image7"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a creative afternoon"><rect width="800" height="400" fill="#eadccb"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 290h800v110H0Z" fill="#c29568"/><rect x="260" y="65" width="250" height="240" rx="5" fill="#fffae7"/><path d="M280 255l90-145 100 140" fill="#546e73"/><circle cx="445" cy="125" r="30" fill="#dbad6a"/><path d="M280 305l-35 90m250-90 35 90" stroke="#715c45" stroke-width="18"/></svg>]]></res>
+<res label="image8"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a picnic in the park"><rect width="800" height="400" fill="#d9e3ce"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 240q200-100 420 20t380-10v150H0Z" fill="#7d9660"/><path d="M190 285h390l100 100H100Z" fill="#f6e8c8"/><path d="M190 315h400m-400 35h450m-380-65-20 100m100-100v100m90-100 20 100" stroke="#cb956b" stroke-width="12" opacity=".55"/><path d="M340 280h120v65H340Z" fill="#c68b55"/><path d="M355 280q45-70 90 0" fill="none" stroke="#c68b55" stroke-width="12"/></svg>]]></res>
+<res label="image9"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a warm kitchen"><rect width="800" height="400" fill="#e7d8bd"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><rect x="0" y="275" width="800" height="125" fill="#a88862"/><ellipse cx="420" cy="300" rx="170" ry="38" fill="#fff7df"/><path d="M290 225q130-160 260 0v50H290Z" fill="#ce8c4f"/><path d="M350 175l-15 50m75-80-15 70m75-60-15 65" stroke="#f6d097" stroke-width="15"/><path d="M150 280v-130m0 60-35-35m35 65 35-35" stroke="#698a79" stroke-width="12"/></svg>]]></res>
+<res label="image10"><![CDATA[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Original illustration: a bike ride"><rect width="800" height="400" fill="#dce4e5"/><circle cx="650" cy="85" r="48" fill="#fff8e6"/><path d="M0 315h800v85H0Z" fill="#d7a477"/><circle cx="260" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><circle cx="570" cy="275" r="77" fill="none" stroke="#486560" stroke-width="12"/><path d="M260 275l90-125 65 125H260l230-120 80 120m-220-125-15-32m155 37-15-45h50" fill="none" stroke="#74969b" stroke-width="13"/><path d="M313 115h65" stroke="#486560" stroke-width="14"/></svg>]]></res>
+<number label="DesignVersion" where="execute" size="3"><title>Assigned .dat design version</title><exec>
+if DesignVersion.val is None:
+    DesignVersion.val = random.randint(1,8)
+</exec></number>
+<number label="SessionKey" where="execute" size="12"><title>Anonymous response cache key</title><exec>
+if SessionKey.val is None:
+    SessionKey.val = random.randint(100000000,999999999)
+</exec></number>
+<html label="Initialize" where="survey">Loading…</html><suspend/>
+<number label="Offer1" where="execute" optional="1" size="6"><title>Feed 1: assigned design metadata by display position</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="task">Feed task</col>
+<col label="item">Item identity</col>
+<col label="order">Display order</col>
+<col label="copy">Copy level</col>
+<col label="image">Image level</col>
+<exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,1,i)]
+    r = Offer1.rows[i-1]
+    r.task.val = 1
+    r.item.val = a[3]
+    r.order.val = a[2]
+    r.copy.val = a[0]
+    r.image.val = a[1]
+</exec></number>
+<html label="Header1" where="survey"><![CDATA[<div class="cf-config" data-feed="1" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<radio label="Feed1" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 1 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,1,i)]
+    Feed1.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+</exec>
+<row label="r1">Item 1</row>
+<row label="r2">Item 2</row>
+<row label="r3">Item 3</row>
+<row label="r4">Item 4</row>
+<row label="r5">Item 5</row>
+<row label="r6">Item 6</row>
+<row label="r7">Item 7</row>
+<row label="r8">Item 8</row>
+<row label="r9">Item 9</row>
+<row label="r10">Item 10</row>
+<row label="r11">Item 11</row>
+<row label="r12">Item 12</row>
+<row label="r13">Item 13</row>
+<row label="r14">Item 14</row>
+<row label="r15">Item 15</row>
+<row label="r16">Item 16</row>
+<row label="r17">Item 17</row>
+<row label="r18">Item 18</row>
+<row label="r19">Item 19</row>
+<row label="r20">Item 20</row>
+<row label="r21">Item 21</row>
+<row label="r22">Item 22</row>
+<row label="r23">Item 23</row>
+<row label="r24">Item 24</row>
+<row label="r25">Item 25</row>
+<row label="r26">Item 26</row>
+<row label="r27">Item 27</row>
+<row label="r28">Item 28</row>
+<row label="r29">Item 29</row>
+<row label="r30">Item 30</row>
+<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>
+<number label="Offer2" where="execute" optional="1" size="6"><title>Feed 2: assigned design metadata by display position</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="task">Feed task</col>
+<col label="item">Item identity</col>
+<col label="order">Display order</col>
+<col label="copy">Copy level</col>
+<col label="image">Image level</col>
+<exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,2,i)]
+    r = Offer2.rows[i-1]
+    r.task.val = 2
+    r.item.val = a[3]
+    r.order.val = a[2]
+    r.copy.val = a[0]
+    r.image.val = a[1]
+</exec></number>
+<html label="Header2" where="survey"><![CDATA[<div class="cf-config" data-feed="2" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<radio label="Feed2" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 2 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,2,i)]
+    Feed2.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+</exec>
+<row label="r1">Item 1</row>
+<row label="r2">Item 2</row>
+<row label="r3">Item 3</row>
+<row label="r4">Item 4</row>
+<row label="r5">Item 5</row>
+<row label="r6">Item 6</row>
+<row label="r7">Item 7</row>
+<row label="r8">Item 8</row>
+<row label="r9">Item 9</row>
+<row label="r10">Item 10</row>
+<row label="r11">Item 11</row>
+<row label="r12">Item 12</row>
+<row label="r13">Item 13</row>
+<row label="r14">Item 14</row>
+<row label="r15">Item 15</row>
+<row label="r16">Item 16</row>
+<row label="r17">Item 17</row>
+<row label="r18">Item 18</row>
+<row label="r19">Item 19</row>
+<row label="r20">Item 20</row>
+<row label="r21">Item 21</row>
+<row label="r22">Item 22</row>
+<row label="r23">Item 23</row>
+<row label="r24">Item 24</row>
+<row label="r25">Item 25</row>
+<row label="r26">Item 26</row>
+<row label="r27">Item 27</row>
+<row label="r28">Item 28</row>
+<row label="r29">Item 29</row>
+<row label="r30">Item 30</row>
+<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>
+<number label="Offer3" where="execute" optional="1" size="6"><title>Feed 3: assigned design metadata by display position</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="task">Feed task</col>
+<col label="item">Item identity</col>
+<col label="order">Display order</col>
+<col label="copy">Copy level</col>
+<col label="image">Image level</col>
+<exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,3,i)]
+    r = Offer3.rows[i-1]
+    r.task.val = 3
+    r.item.val = a[3]
+    r.order.val = a[2]
+    r.copy.val = a[0]
+    r.image.val = a[1]
+</exec></number>
+<html label="Header3" where="survey"><![CDATA[<div class="cf-config" data-feed="3" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<radio label="Feed3" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 3 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,3,i)]
+    Feed3.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+</exec>
+<row label="r1">Item 1</row>
+<row label="r2">Item 2</row>
+<row label="r3">Item 3</row>
+<row label="r4">Item 4</row>
+<row label="r5">Item 5</row>
+<row label="r6">Item 6</row>
+<row label="r7">Item 7</row>
+<row label="r8">Item 8</row>
+<row label="r9">Item 9</row>
+<row label="r10">Item 10</row>
+<row label="r11">Item 11</row>
+<row label="r12">Item 12</row>
+<row label="r13">Item 13</row>
+<row label="r14">Item 14</row>
+<row label="r15">Item 15</row>
+<row label="r16">Item 16</row>
+<row label="r17">Item 17</row>
+<row label="r18">Item 18</row>
+<row label="r19">Item 19</row>
+<row label="r20">Item 20</row>
+<row label="r21">Item 21</row>
+<row label="r22">Item 22</row>
+<row label="r23">Item 23</row>
+<row label="r24">Item 24</row>
+<row label="r25">Item 25</row>
+<row label="r26">Item 26</row>
+<row label="r27">Item 27</row>
+<row label="r28">Item 28</row>
+<row label="r29">Item 29</row>
+<row label="r30">Item 30</row>
+<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>
+<number label="Offer4" where="execute" optional="1" size="6"><title>Feed 4: assigned design metadata by display position</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="task">Feed task</col>
+<col label="item">Item identity</col>
+<col label="order">Display order</col>
+<col label="copy">Copy level</col>
+<col label="image">Image level</col>
+<exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,4,i)]
+    r = Offer4.rows[i-1]
+    r.task.val = 4
+    r.item.val = a[3]
+    r.order.val = a[2]
+    r.copy.val = a[0]
+    r.image.val = a[1]
+</exec></number>
+<html label="Header4" where="survey"><![CDATA[<div class="cf-config" data-feed="4" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<radio label="Feed4" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 4 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,4,i)]
+    Feed4.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+</exec>
+<row label="r1">Item 1</row>
+<row label="r2">Item 2</row>
+<row label="r3">Item 3</row>
+<row label="r4">Item 4</row>
+<row label="r5">Item 5</row>
+<row label="r6">Item 6</row>
+<row label="r7">Item 7</row>
+<row label="r8">Item 8</row>
+<row label="r9">Item 9</row>
+<row label="r10">Item 10</row>
+<row label="r11">Item 11</row>
+<row label="r12">Item 12</row>
+<row label="r13">Item 13</row>
+<row label="r14">Item 14</row>
+<row label="r15">Item 15</row>
+<row label="r16">Item 16</row>
+<row label="r17">Item 17</row>
+<row label="r18">Item 18</row>
+<row label="r19">Item 19</row>
+<row label="r20">Item 20</row>
+<row label="r21">Item 21</row>
+<row label="r22">Item 22</row>
+<row label="r23">Item 23</row>
+<row label="r24">Item 24</row>
+<row label="r25">Item 25</row>
+<row label="r26">Item 26</row>
+<row label="r27">Item 27</row>
+<row label="r28">Item 28</row>
+<row label="r29">Item 29</row>
+<row label="r30">Item 30</row>
+<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>
+<number label="Offer5" where="execute" optional="1" size="6"><title>Feed 5: assigned design metadata by display position</title>
+<row label="r1">Position 1</row>
+<row label="r2">Position 2</row>
+<row label="r3">Position 3</row>
+<row label="r4">Position 4</row>
+<row label="r5">Position 5</row>
+<row label="r6">Position 6</row>
+<row label="r7">Position 7</row>
+<row label="r8">Position 8</row>
+<row label="r9">Position 9</row>
+<row label="r10">Position 10</row>
+<row label="r11">Position 11</row>
+<row label="r12">Position 12</row>
+<row label="r13">Position 13</row>
+<row label="r14">Position 14</row>
+<row label="r15">Position 15</row>
+<row label="r16">Position 16</row>
+<row label="r17">Position 17</row>
+<row label="r18">Position 18</row>
+<row label="r19">Position 19</row>
+<row label="r20">Position 20</row>
+<row label="r21">Position 21</row>
+<row label="r22">Position 22</row>
+<row label="r23">Position 23</row>
+<row label="r24">Position 24</row>
+<row label="r25">Position 25</row>
+<row label="r26">Position 26</row>
+<row label="r27">Position 27</row>
+<row label="r28">Position 28</row>
+<row label="r29">Position 29</row>
+<row label="r30">Position 30</row>
+<col label="task">Feed task</col>
+<col label="item">Item identity</col>
+<col label="order">Display order</col>
+<col label="copy">Copy level</col>
+<col label="image">Image level</col>
+<exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,5,i)]
+    r = Offer5.rows[i-1]
+    r.task.val = 5
+    r.item.val = a[3]
+    r.order.val = a[2]
+    r.copy.val = a[0]
+    r.image.val = a[1]
+</exec></number>
+<html label="Header5" where="survey"><![CDATA[<div class="cf-config" data-feed="5" data-feeds="5" data-version="${DesignVersion.val}" data-session="${SessionKey.val}"></div>]]></html>
+<radio label="Feed5" type="rating" optional="0" ss:questionClassNames="cf-feed" ss:accordionDisplay="0"><title>Feed 5 of 5</title><comment>Like anything that stands out. Zero likes is valid.</comment><exec>
+for i in range(1,31):
+    a = socialDesign[(DesignVersion.val,5,i)]
+    Feed5.rows[i-1].text = '&lt;p class="cf-copy"&gt;%s&lt;/p&gt;&lt;div class="cf-art"&gt;%s&lt;/div&gt;' % (res["copy%d" % a[0]], res["image%d" % a[1]])
+</exec>
+<row label="r1">Item 1</row>
+<row label="r2">Item 2</row>
+<row label="r3">Item 3</row>
+<row label="r4">Item 4</row>
+<row label="r5">Item 5</row>
+<row label="r6">Item 6</row>
+<row label="r7">Item 7</row>
+<row label="r8">Item 8</row>
+<row label="r9">Item 9</row>
+<row label="r10">Item 10</row>
+<row label="r11">Item 11</row>
+<row label="r12">Item 12</row>
+<row label="r13">Item 13</row>
+<row label="r14">Item 14</row>
+<row label="r15">Item 15</row>
+<row label="r16">Item 16</row>
+<row label="r17">Item 17</row>
+<row label="r18">Item 18</row>
+<row label="r19">Item 19</row>
+<row label="r20">Item 20</row>
+<row label="r21">Item 21</row>
+<row label="r22">Item 22</row>
+<row label="r23">Item 23</row>
+<row label="r24">Item 24</row>
+<row label="r25">Item 25</row>
+<row label="r26">Item 26</row>
+<row label="r27">Item 27</row>
+<row label="r28">Item 28</row>
+<row label="r29">Item 29</row>
+<row label="r30">Item 30</row>
+<col label="c1" value="1">Not exposed under rule</col><col label="c2" value="2">Exposed, not liked</col><col label="c3" value="3">Liked</col></radio><suspend/>
+<samplesources default="0"><samplesource list="0"><title>Open survey</title><completed>You have already completed this study.</completed><exit cond="qualified">Your responses have been recorded.</exit></samplesource></samplesources></survey>
