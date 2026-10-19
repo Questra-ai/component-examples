@@ -1,0 +1,24 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+const base=new URL('./',import.meta.url);
+const get=p=>readFileSync(new URL(p,base),'utf8');
+const styles='<style name="question.after"><![CDATA[<style>\n'+get('src/swipe.css').replaceAll('@media', '\\@media')+'\n</style><script>jQuery(function () {\n'+get('src/swipe.js')+'\n});</script>]]></style>';
+const question=get('src/question.xml').replace('<!-- SWIPE_STYLES -->',styles);
+writeFileSync(new URL('survey.xml',base),get('src/survey-shell.xml').replace('<!-- QUESTION -->',question));
+writeFileSync(new URL('component.xml',base),question);
+const componentTemplate=question
+  .replace('label="QSwipe"','label="@{label}"')
+  .replace(/<title>[\s\S]*?<\/title>/,'<title>@{title}</title>')
+  .replace(/<comment>[\s\S]*?<\/comment>/,'<comment>@{instructions}</comment>')
+  .replace(/<row label="r1">[\s\S]*?<\/row>\s*(?=<col)/,'@{#each rows as row}<row label="@{row.label}">@{row.text}</row>\n@{/each}');
+const schema={type:'object',additionalProperties:false,required:['label','title','instructions','rows'],properties:{
+ label:{type:'string',description:'Unique native question label, e.g. QSwipe. Use a letter followed by letters/digits/underscore.'},
+ title:{type:'string',description:'Plain text question title.'},
+ instructions:{type:'string',description:'Plain text instructions. Explain that Skip is an explicit answer.'},
+ rows:{type:'array',description:'One to twenty unique rows in display order. Each label must be a valid unique native row label.',items:{type:'object',additionalProperties:false,required:['label','text'],properties:{label:{type:'string',description:'Unique native row label, e.g. r1.'},text:{type:'string',description:'Plain text card content; no markup, media, or logic.'}}}}
+}};
+const instructions='Use SwipeCards for a requested swipe-card single-select matrix. Supply label, title, instructions, and an array of rows with label/text. Keep column labels c1/c2/c3 and export values 1/2/3 fixed: Dislike/Skip/Like. Never turn Skip into missing. After the last choice, preserve the bundled guarded completion through the actual native Continue button. Use one to twenty rows with unique valid Decipher labels. Use plain text only. Preserve native radio inputs and scoped bundled styles. Do not add shuffle, exclusive rows, open-ended cells, row conditions, or other interactive styles without a separate native verification. Put the rendered component in main, followed by a suspend. Generate no extra substantive questions for a single-question request. Keep only the question, cards and Dislike/Skip/Like controls visible. No review page, Back, Undo, card navigation, fallback toggle, debug display, progress labels or teaching copy. Disable native Back with ss:enableNavigation="0". Preserve accessible instructions. Hide native Continue only after successful enhancement; restore it and the matrix on validation/re-entry or after a stalled request. Finish the final animation, remove the deck, and invoke the existing native Continue button once when every row is selected. Never bypass native validation with form.submit or introduce repeated automatic retries. Use only one question per page. Keep the bundled pointer tracking, edge fade, directional cue, threshold snap-back, locked single-commit animation and subtle next-card preview; buttons use the same transition. Respect reduced motion and vertical scrolling. Verify native required validation and output mapping after generation.';
+const shell=get('src/survey-shell.xml').replace('<!-- QUESTION -->','{{slot:main}}').replace('<suspend/>\n<html','<suspend/>\n<html');
+const transfer={format:'questra-fine-tuning-template',version:1,exported_at:'2026-10-19T00:00:00.000Z',template:{name:'Swipe cards — Decipher',description:'A native three-column radio matrix enhanced as accessible swipe cards. Synthetic demo; variable plain-text rows.',platform:'decipher',instructions,skeleton_source:shell,slots:[{id:'main',name:'Main questions',description:'Place the SwipeCards component here.'}],template_format_version:2,template_blueprint_json:null},components:[{name:'SwipeCards',description:'Swipe left to Dislike, right to Like, or explicitly Skip. One native required radio row per card, with internal matrix fallback and no Back/Undo controls. Plain-text rows only; column codes fixed.',input_schema:schema,template:componentTemplate,output_mode:'xml'}],files:[]};
+writeFileSync(new URL('questra-template.json',base),JSON.stringify(transfer,null,2)+'\n');
+writeFileSync(new URL('component.template.xml',base),componentTemplate);
+writeFileSync(new URL('example-input.json',base),JSON.stringify({label:'QIdeas',title:'Which ideas appeal to you?',instructions:'Choose Dislike, Skip, or Like for each idea. Skip is an explicit response.',rows:[{label:'r1',text:'Coffee & a good book'},{label:'r2',text:'A walk by the river'},{label:'r3',text:'A board-game evening'}]},null,2)+'\n');
