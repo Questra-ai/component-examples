@@ -1,0 +1,233 @@
+<survey name="Outfit selection" alt="Outfit selection" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source" autosave="1">
+<style name="respview.client.css"><![CDATA[<style>body.outfit-ready {margin:0;background:#f6f4ed;color:#263c34;font-family:Arial,Helvetica,sans-serif;}
+.outfit-ready #survey,.outfit-ready .survey-section,.outfit-ready .survey-body {width:auto;max-width:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
+.outfit-ready .page-header,.outfit-ready .survey-header,.outfit-ready .survey-footer,.outfit-ready .survey-buttons,.outfit-ready .outfit-native,.outfit-ready [id^="comment_OutfitMeta"] {display:none!important;}
+.outfit-ready .survey-info {display:none!important;}
+.outfit-ui {max-width:1320px;margin:0 auto;padding:30px 56px 28px;box-sizing:border-box;}
+.outfit-ui * {box-sizing:border-box;}
+.outfit-ui button {font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.outfit-ui button:focus-visible {outline:3px solid #bf623d;outline-offset:5px;}
+
+
+
+
+.os-progress {display:flex;align-items:center;gap:15px;font-size:12px;color:#6b756a;margin-bottom:18px;}
+.os-dots {display:flex;gap:6px;}
+.os-dot {width:25px;height:4px;border-radius:4px;background:#d7ddcf;}
+.os-dot.done {background:#7d9277;}.os-dot.current {background:#263c34;}
+.os-heading {margin:0 0 24px;}
+.os-heading h1 {font:600 clamp(24px,2.5vw,32px)/1.25 Arial,Helvetica,sans-serif;letter-spacing:-.6px;margin:0;color:#263c34;}
+.os-heading p {margin:10px 0 0;font-size:13px;line-height:1.5;color:#6b756a;}
+.os-workspace {display:grid;grid-template-columns:1fr 1.08fr;gap:34px;align-items:stretch;}
+.os-stage {position:relative;height:518px;border-radius:24px;background:radial-gradient(ellipse at 50% 30%,#eef1e3 0%,#dfe6d2 72%);overflow:hidden;isolation:isolate;border:1px solid #d3dcc7;transition:box-shadow .2s;}
+.os-stage:after {content:"";position:absolute;left:16%;right:16%;bottom:27px;height:19px;background:#5c6b4420;filter:blur(15px);border-radius:50%;z-index:-1;}
+
+
+
+.os-slot {position:absolute;display:grid;place-items:center;left:50%;transform:translateX(-50%);transition:filter .2s;}
+.os-slot[data-cat="hat"] {top:8px;width:115px;height:123px;z-index:4;left:52%;}
+.os-slot[data-cat="shirt"] {top:93px;width:245px;height:261px;z-index:3;}
+.os-slot[data-cat="pants"] {top:266px;width:188px;height:201px;z-index:2;}
+.os-slot[data-cat="shoes"] {top:405px;width:120px;height:128px;z-index:4;}
+.os-slot img {width:100%;height:100%;object-fit:contain;user-select:none;pointer-events:none;filter:drop-shadow(0 10px 8px #32442f10);}
+.os-slot.empty img {opacity:.10;filter:grayscale(1);}
+.os-slot.empty:after {content:attr(data-prompt);position:absolute;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;background:#eef2e8cc;padding:7px 11px;border:1px dashed #9daa8c;border-radius:20px;color:#617354;}
+.os-slot[data-cat="hat"].empty {opacity:.5;}.os-slot[data-cat="hat"].empty:after {display:none;}
+.os-slot.active-drop {filter:drop-shadow(0 0 16px #fff);}
+.os-stage.drag-over {box-shadow:inset 0 0 0 3px #81976c;}
+.os-wardrobe {padding-top:3px;display:flex;flex-direction:column;min-width:0;}
+.os-tabs {display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:26px;}
+.os-tab {position:relative;border:1px solid #dce1d5;border-radius:50px;background:transparent;color:#6c7868;padding:12px 5px;font-size:12px!important;transition:background .2s,color .2s,border .2s;}
+.os-tab.active {background:#263c34;color:#fff;border-color:#263c34;}
+.os-tab .os-tick {display:none;margin-left:5px;}.os-tab.chosen .os-tick {display:inline;}
+.os-section-head {display:flex;justify-content:space-between;align-items:center;margin:0 0 17px;}
+.os-section-head h2 {font:500 18px Arial,Helvetica,sans-serif;margin:0;color:#263c34;}
+.os-section-head span {font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#7b8275;}
+.os-cards {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.os-card {position:relative;padding:10px 8px 14px;border:1px solid #dfe3d8;border-radius:16px;background:#fbfaf5;text-align:left;color:#34483d;min-width:0;transition:border-color .2s,box-shadow .2s,background .2s,transform .25s;}
+.os-card:hover {transform:translateY(-4px);border-color:#a8b49b;box-shadow:0 10px 20px #263c3409;}
+.os-card[aria-pressed="true"] {border-color:#788d65;background:#ecf0e4;box-shadow:inset 0 0 0 1px #788d65;}
+.os-card img {display:block;width:100%;height:166px;object-fit:contain;touch-action:none;user-select:none;-webkit-user-drag:none;}
+.os-card-name {display:block;font-size:11px;line-height:1.45;min-height:32px;margin:9px 3px 0;}
+.os-card-marker {position:absolute;top:10px;right:10px;width:19px;height:19px;border-radius:50%;background:#fff9;border:1px solid #cbd4bf;display:grid;place-items:center;font-size:11px;color:transparent;}
+.os-card[aria-pressed="true"] .os-card-marker {background:#667e56;color:white;border-color:#667e56;}
+.os-nohat {display:block;border:1px solid #dfe3d8;border-radius:12px;background:transparent;color:#54654b;padding:10px 14px;width:100%;margin-top:10px;font-size:12px!important;text-align:left;}
+.os-nohat[aria-pressed="true"] {border-color:#788d65;background:#ecf0e4;}
+.os-nohat span {float:right;}.os-nohat:not([aria-pressed="true"]) span {visibility:hidden;}
+
+.os-bottom {margin-top:auto;padding-top:23px;}
+
+
+
+.os-submit {border:0;border-radius:13px;background:#263c34;color:white;padding:17px 20px;width:100%;display:flex;justify-content:space-between;align-items:center;transition:background .2s,transform .2s;min-height:52px;font-size:13px!important;}
+.os-submit:hover {background:#3c5647;}.os-submit:active {transform:scale(.985);}.os-submit:disabled {cursor:wait;opacity:.65;}
+.os-submit span:last-child {font-size:19px;}
+.os-status {font-size:11px;color:#65765b;margin:10px 0 0;min-height:16px;line-height:1.4;}
+.os-status.error {color:#a7462f;}
+
+.os-ghost {position:fixed;pointer-events:none;z-index:9999;object-fit:contain;filter:drop-shadow(0 15px 15px #263c342b);will-change:transform,width,height;}
+.outfit-ui.os-leaving {opacity:0;transform:translateY(-8px);transition:opacity .18s,transform .18s;}
+.os-cards.os-enter {animation:os-in .35s both;}
+\@keyframes os-in {from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.os-sr {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+\@media (min-width:1500px) {.outfit-ui{padding-top:40px}.os-stage{height:560px}.os-slot[data-cat="shirt"]{top:108px}.os-slot[data-cat="pants"]{top:281px}.os-slot[data-cat="shoes"]{top:420px}.os-slot[data-cat="hat"]{top:23px}}
+\@media (max-width:900px) {.outfit-ui{padding:23px 25px}.os-workspace{gap:22px;grid-template-columns:.95fr 1.05fr}.os-card img{height:138px}.os-tabs{gap:4px}.os-tab{font-size:11px!important}.os-stage{height:500px}.os-heading p{font-size:12px}.os-slot[data-cat="shoes"]{top:389px}.os-slot[data-cat="pants"]{top:250px}.os-slot[data-cat="shirt"]{top:77px}.os-slot[data-cat="hat"]{top:-8px}}
+\@media (max-width:650px) {.outfit-ui{padding:17px 17px 22px}.os-progress{gap:9px;font-size:10px}.os-dot{width:15px}.os-heading{margin:0 0 18px}.os-heading h1{font-size:25px;letter-spacing:-.5px}.os-heading p{margin:8px 0 0;max-width:none;font-size:11px}.os-workspace{display:flex;flex-direction:column;gap:19px}.os-stage{height:270px;border-radius:20px}.os-slot[data-cat="hat"]{width:67px;height:72px;top:-3px;left:51%}.os-slot[data-cat="shirt"]{width:143px;height:153px;top:39px}.os-slot[data-cat="pants"]{width:110px;height:117px;top:125px}.os-slot[data-cat="shoes"]{width:70px;height:75px;top:200px}.os-slot.empty:after{font-size:8px;padding:4px 7px}.os-tabs{margin-bottom:17px;gap:7px}.os-tab{padding:10px 5px}.os-section-head{margin-bottom:12px}.os-section-head h2{font-size:17px}.os-section-head span{font-size:9px}.os-card{padding:6px 6px 10px;border-radius:13px}.os-card img{height:114px}.os-card-name{font-size:10px;margin-top:3px;min-height:29px}.os-card-marker{width:17px;height:17px;top:7px;right:7px}.os-bottom{padding-top:15px}.os-submit{padding:14px 17px;min-height:48px}.os-status{font-size:10px;margin-top:8px}}
+\@media (prefers-reduced-motion:reduce) {.outfit-ui *,.os-ghost{animation:none!important;transition:none!important;scroll-behavior:auto!important}.os-card:hover{transform:none}}
+
+body.outfit-boot{background:#f6f4ed;color:#263c34}.outfit-boot #survey{visibility:hidden}#outfit-start{position:fixed;inset:0;display:grid;place-items:center;background:#f6f4ed;font:28px Georgia,serif;visibility:visible;z-index:100}
+
+.os-status:not(.error) {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;margin:0;}
+</style>]]></style>
+<style name="respview.client.js"><![CDATA[<script>jQuery(function(){
+window.OUTFIT_DATASET=[{"id": "shirt1", "category": "shirt", "code": 1, "name": "Cloud cotton tee", "src": "shirt1.svg"}, {"id": "shirt2", "category": "shirt", "code": 2, "name": "Ink knit polo", "src": "shirt2.svg"}, {"id": "shirt3", "category": "shirt", "code": 3, "name": "Clay camp shirt", "src": "shirt3.svg"}, {"id": "shirt4", "category": "shirt", "code": 4, "name": "Sage overshirt", "src": "shirt4.svg"}, {"id": "shirt5", "category": "shirt", "code": 5, "name": "Breton stripe", "src": "shirt5.svg"}, {"id": "shirt6", "category": "shirt", "code": 6, "name": "Sunwashed linen", "src": "shirt6.svg"}, {"id": "pants1", "category": "pants", "code": 1, "name": "Indigo straight denim", "src": "pants1.svg"}, {"id": "pants2", "category": "pants", "code": 2, "name": "Sand chinos", "src": "pants2.svg"}, {"id": "pants3", "category": "pants", "code": 3, "name": "Olive cargo", "src": "pants3.svg"}, {"id": "pants4", "category": "pants", "code": 4, "name": "Charcoal pleats", "src": "pants4.svg"}, {"id": "pants5", "category": "pants", "code": 5, "name": "Ecru wide leg", "src": "pants5.svg"}, {"id": "pants6", "category": "pants", "code": 6, "name": "Washed blue denim", "src": "pants6.svg"}, {"id": "shoes1", "category": "shoes", "code": 1, "name": "Chalk court sneaker", "src": "shoes1.svg"}, {"id": "shoes2", "category": "shoes", "code": 2, "name": "Forest runner", "src": "shoes2.svg"}, {"id": "shoes3", "category": "shoes", "code": 3, "name": "Cocoa loafer", "src": "shoes3.svg"}, {"id": "shoes4", "category": "shoes", "code": 4, "name": "Ink high top", "src": "shoes4.svg"}, {"id": "shoes5", "category": "shoes", "code": 5, "name": "Sand desert boot", "src": "shoes5.svg"}, {"id": "shoes6", "category": "shoes", "code": 6, "name": "Clay trail sneaker", "src": "shoes6.svg"}, {"id": "hat1", "category": "hat", "code": 1, "name": "Ink baseball cap", "src": "hat1.svg"}, {"id": "hat2", "category": "hat", "code": 2, "name": "Oat bucket hat", "src": "hat2.svg"}, {"id": "hat3", "category": "hat", "code": 3, "name": "Rust beanie", "src": "hat3.svg"}, {"id": "hat4", "category": "hat", "code": 4, "name": "Sage five panel", "src": "hat4.svg"}, {"id": "hat5", "category": "hat", "code": 5, "name": "Cream baseball cap", "src": "hat5.svg"}, {"id": "hat6", "category": "hat", "code": 6, "name": "Charcoal bucket hat", "src": "hat6.svg"}];
+(function(){
+'use strict';
+var boot=document.getElementById('outfit-start');
+if(boot){document.body.classList.add('outfit-boot');var startButton=document.getElementById('btn_continue');if(startButton)setTimeout(function(){startButton.click();},30);return;}
+var meta=document.getElementById('outfit-meta');
+if(!meta) return;
+var cats=['shirt','pants','shoes','hat'], groups={}, data=window.OUTFIT_DATASET, round=Number(meta.dataset.round), version=meta.dataset.version;
+var next=document.getElementById('btn_continue'), form=next&&next.form;
+if(!next||!form) return;
+var dataset={};data.forEach(function(d){dataset[d.id]=d;});
+// All offered values come from server-rendered native rows; JS never randomizes a design.
+for(var ci=0;ci<cats.length;ci++){
+ var cat=cats[ci], question=document.querySelector('.outfit-'+cat);
+ if(!question) return;
+ var options=[];
+ Array.prototype.forEach.call(question.querySelectorAll('input[type="radio"]'),function(input){
+  var label=question.querySelector('label[for="'+input.id+'"]');
+  var name=label&&label.textContent.trim();
+  var item=data.find(function(d){return d.category===cat&&d.name===name;});
+  if(cat==='hat'&&name==='No hat')item={id:'hat0',category:'hat',code:0,name:'No hat',src:null};
+  if(item)options.push({item:item,input:input});
+ });
+ if(options.length!==(cat==='hat'?4:3))return;
+ groups[cat]=options;
+}
+var savedKey='outfit:'+meta.dataset.session+':'+version+':'+round, selected={}, busy=false, submitted=false, active='shirt', drag=null, suppressClick=0, transitionToken=0;
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+var saved={};try{saved=JSON.parse(sessionStorage.getItem(savedKey)||'{}');}catch(e){}
+cats.forEach(function(cat){
+ var existing=groups[cat].find(function(x){return x.input.checked;});
+ // Native restored values take precedence; local drafts only target offered native inputs.
+ var restore=existing||groups[cat].find(function(x){return x.item.id===saved[cat];});
+ if(!restore&&cat==='hat')restore=groups.hat.find(function(x){return x.item.code===0;});
+ if(restore){restore.input.click();selected[cat]=restore.item.id;}
+});
+active=cats.find(function(c){return !selected[c];})||'hat';
+var ui=document.createElement('main');ui.className='outfit-ui';ui.setAttribute('aria-label','Outfit selection');
+ui.innerHTML='<div class="os-progress" aria-label="Task '+round+' of 5"><span>Task '+round+' of 5</span><div class="os-dots" aria-hidden="true">'+[1,2,3,4,5].map(function(n){return '<i class="os-dot '+(n<round?'done':n===round?'current':'')+'"></i>';}).join('')+'</div></div><div class="os-heading"><h1>Which outfit would you choose?</h1><p>Choose a shirt, pants and shoes. Hat is optional. Drag or tap to select.</p></div><div class="os-workspace"><section class="os-stage" aria-label="Your outfit. Drop an item here.">'+['hat','shirt','pants','shoes'].map(function(c){return '<div class="os-slot empty" data-cat="'+c+'" data-prompt="+ '+c+'"><img alt="" draggable="false"></div>';}).join('')+'</section><section class="os-wardrobe" aria-label="Clothing choices"><div class="os-tabs" role="tablist" aria-label="Clothing category">'+cats.map(function(c,i){return '<button type="button" class="os-tab" id="tab-'+c+'" role="tab" aria-controls="os-panel" data-cat="'+c+'">'+c.charAt(0).toUpperCase()+c.slice(1)+'<span class="os-tick" aria-hidden="true">✓</span></button>';}).join('')+'</div><div id="os-panel" role="tabpanel"><div class="os-section-head"><h2></h2><span></span></div><div class="os-cards" role="group"></div><div class="os-none-wrap"></div></div><div class="os-bottom"><button type="button" class="os-submit"><span>Continue</span><span aria-hidden="true">→</span></button><p class="os-status" role="status" aria-live="polite"></p></div></section></div>';
+
+meta.closest('.html').insertAdjacentElement('beforebegin',ui);document.body.classList.add('outfit-ready');
+var stage=ui.querySelector('.os-stage'),cards=ui.querySelector('.os-cards'),status=ui.querySelector('.os-status'),submit=ui.querySelector('.os-submit');
+function src(item){return /^(https?:|data:)/.test(item.src)?item.src:meta.dataset.assets+item.src;}
+function itemFor(id){return id==='hat0'?{id:'hat0',name:'No hat',code:0,category:'hat'}:dataset[id];}
+function draft(){try{sessionStorage.setItem(savedKey,JSON.stringify(selected));}catch(e){}}
+function update(){
+ cats.forEach(function(c){
+  var slot=ui.querySelector('.os-slot[data-cat="'+c+'"]'),item=selected[c]&&itemFor(selected[c]),empty=!item||!item.code;
+  slot.classList.toggle('empty',empty);
+  slot.querySelector('img').src=src(empty?groups[c][0].item:item);
+  slot.querySelector('img').alt=empty?'':item.name;
+  var tab=ui.querySelector('.os-tab[data-cat="'+c+'"]');tab.classList.toggle('chosen',!!selected[c]);tab.classList.toggle('active',c===active);tab.setAttribute('aria-selected',c===active?'true':'false');tab.tabIndex=c===active?0:-1;
+ });
+ ui.querySelectorAll('[data-option]').forEach(function(b){b.setAttribute('aria-pressed',selected[active]===b.dataset.option?'true':'false');});
+ if(!status.classList.contains('error'))status.textContent='';
+}
+function showCategory(c,focus){
+ active=c;transitionToken++;
+ var title={shirt:'Select a shirt',pants:'Select pants',shoes:'Select shoes',hat:'Select a hat'};
+ ui.querySelector('.os-section-head h2').textContent=title[c];ui.querySelector('.os-section-head span').textContent=c==='hat'?'Optional':'Choose one';
+ ui.querySelector('#os-panel').setAttribute('aria-labelledby','tab-'+c);cards.setAttribute('aria-label',c+' options');
+ cards.innerHTML='';ui.querySelector('.os-none-wrap').innerHTML='';
+ groups[c].forEach(function(o){
+  var b=document.createElement('button');b.type='button';b.dataset.option=o.item.id;b.setAttribute('aria-label',o.item.name);b.setAttribute('aria-pressed',selected[c]===o.item.id?'true':'false');
+  if(o.item.code===0){b.className='os-nohat';b.innerHTML='No hat <span aria-hidden="true">✓</span>';ui.querySelector('.os-none-wrap').appendChild(b);}
+  else {b.className='os-card';b.innerHTML='<span class="os-card-marker" aria-hidden="true">✓</span><img src="'+src(o.item)+'" alt="" draggable="false"><span class="os-card-name">'+o.item.name+'</span>';cards.appendChild(b);}
+  b.addEventListener('click',function(e){if(Date.now()<suppressClick)return;choose(o,b.querySelector('img'),true,null,null,e.detail===0);});
+  b.addEventListener('keydown',function(e){if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)<0)return;e.preventDefault();var all=Array.from(ui.querySelectorAll('[data-option]')),idx=all.indexOf(b),dir=(e.key==='ArrowRight'||e.key==='ArrowDown')?1:-1;all[(idx+dir+all.length)%all.length].focus();});
+  if(o.item.code)b.querySelector('img').addEventListener('pointerdown',function(e){startDrag(e,o,b);});
+ });
+ cards.classList.remove('os-enter');void cards.offsetWidth;cards.classList.add('os-enter');update();if(focus)ui.querySelector('.os-tab[data-cat="'+c+'"]').focus();
+}
+function ghostFor(image,rect){var g=image.cloneNode();g.className='os-ghost';g.setAttribute('aria-hidden','true');Object.assign(g.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});document.body.appendChild(g);return g;}
+function fly(o,image,existing,start){
+ var target=ui.querySelector('.os-slot[data-cat="'+o.item.category+'"] img'),dest=target.getBoundingClientRect();
+ if(!image||reduce.matches){if(existing)existing.remove();return Promise.resolve();}
+ var rect=start||image.getBoundingClientRect(),g=existing||ghostFor(image,rect);
+ g.style.transform='none';
+ var a=g.animate([{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px',opacity:1},{left:dest.left+'px',top:dest.top+'px',width:dest.width+'px',height:dest.height+'px',opacity:1}],{duration:440,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+ return a.finished.catch(function(){}).then(function(){g.remove();});
+}
+function choose(o,image,advance,ghost,start,keyboard){
+ if(busy||submitted){if(ghost)ghost.remove();return;}
+ if(!groups[o.item.category].some(function(x){return x===o;})){if(ghost)ghost.remove();return;}
+ busy=true;var originalCategory=active,token=transitionToken;
+ o.input.click();if(!o.input.checked){busy=false;if(ghost)ghost.remove();return;}
+ selected[o.item.category]=o.item.id;draft();status.classList.remove('error');
+ // Native choice is committed synchronously; only the presentation waits for the snap.
+ fly(o,image,ghost,start).then(function(){
+  update();busy=false;status.textContent=o.item.name+' selected.';
+  if(advance&&token===transitionToken&&originalCategory===o.item.category){var n=cats.indexOf(originalCategory);if(n<3)showCategory(cats[n+1],!!keyboard);}
+ });
+}
+function startDrag(e,o,button){
+ if(busy||submitted||e.button!==0)return;
+ var image=button.querySelector('img'),r=image.getBoundingClientRect();
+ drag={pointer:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,o:o,image:image,button:button,rect:r,ghost:null,moved:false};
+ image.setPointerCapture(e.pointerId);
+}
+document.addEventListener('pointermove',function(e){
+ if(!drag||e.pointerId!==drag.pointer)return;
+ var dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.lastX=e.clientX;drag.lastY=e.clientY;
+ if(!drag.moved&&Math.hypot(dx,dy)<7)return;
+ if(!drag.moved){drag.moved=true;drag.ghost=ghostFor(drag.image,drag.rect);drag.button.style.opacity='.45';}
+ drag.ghost.style.transform='translate('+dx+'px,'+dy+'px) rotate('+Math.max(-7,Math.min(7,dx/25))+'deg)';
+ var r=stage.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+ stage.classList.toggle('drag-over',inside);ui.querySelector('.os-slot[data-cat="'+drag.o.item.category+'"]').classList.toggle('active-drop',inside);
+});
+function endDrag(e,cancel){
+ if(!drag||e.pointerId!==drag.pointer)return;
+ var d=drag;drag=null;d.button.style.opacity='';stage.classList.remove('drag-over');ui.querySelectorAll('.active-drop').forEach(function(x){x.classList.remove('active-drop');});
+ if(!d.moved)return;suppressClick=Date.now()+500;
+ var r=stage.getBoundingClientRect(),inside=!cancel&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+ var start={left:d.rect.left+d.lastX-d.x,top:d.rect.top+d.lastY-d.y,width:d.rect.width,height:d.rect.height};
+ if(inside){choose(d.o,d.image,true,d.ghost,start);}else{
+  if(reduce.matches){d.ghost.remove();return;}
+  var a=d.ghost.animate([{transform:d.ghost.style.transform,opacity:1},{transform:'translate(0,0) rotate(0)',opacity:.3}],{duration:230,easing:'ease-out'});a.finished.catch(function(){}).then(function(){d.ghost.remove();});
+ }
+}
+document.addEventListener('pointerup',function(e){endDrag(e,false);});document.addEventListener('pointercancel',function(e){endDrag(e,true);});
+ui.querySelectorAll('.os-tab').forEach(function(b){b.addEventListener('click',function(){if(!submitted)showCategory(b.dataset.cat,false);});b.addEventListener('keydown',function(e){if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;e.preventDefault();var idx=cats.indexOf(b.dataset.cat),delta=e.key==='ArrowRight'?1:-1;showCategory(cats[(idx+delta+4)%4],true);});});
+submit.addEventListener('click',function(){
+ if(busy||submitted)return;
+ var missing=cats.slice(0,3).filter(function(c){return !groups[c].some(function(o){return o.input.checked;});});
+ if(missing.length){showCategory(missing[0],true);status.classList.add('error');status.textContent='Please select '+missing.join(', ')+'.';return;}
+ submitted=true;submit.disabled=true;status.classList.remove('error');status.textContent='Submitting…';ui.classList.add('os-leaving');
+ setTimeout(function(){next.click();},reduce.matches?0:180);
+ setTimeout(function(){if(document.contains(ui)){submitted=false;submit.disabled=false;ui.classList.remove('os-leaving');status.classList.add('error');status.textContent='Please try Continue again.';}},12000);
+});
+// Let native validation and the survey's own navigation perform all submissions.
+var nativeErrors=Array.from(document.querySelectorAll('.error-text,.error')).map(function(e){return e.textContent.trim();}).filter(Boolean);
+showCategory(active,false);
+if(nativeErrors.length){status.classList.add('error');status.textContent=nativeErrors.join(' ');}
+})();
+
+});</script>]]></style>
+<exec when="init"><![CDATA[
+def setupDCMFile(fname, fileDelimiter="\t"):
+    f = open("%s/%s" % (gv.survey.path, fname))
+    rows = [line.strip("\r\n").split(fileDelimiter) for line in f.readlines()]
+    f.close()
+    d = {}
+    for row in rows[1:]:
+        if len(row) == 7:
+            d["v%s_t%s_c%s" % (row[0],row[1],row[2])] = row[3:]
+    return d
+outfitDesign = setupDCMFile("outfit-design-v2.dat")
+def outfitOffers(version, task, attribute):
+    return [int(outfitDesign["v%s_t%s_c%s" % (version,task,c)][attribute]) for c in range(1,4)]
+]]></exec>
+{{slot:main}}</survey>

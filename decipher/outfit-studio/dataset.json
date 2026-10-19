@@ -1,0 +1,170 @@
+[
+  {
+    "id": "shirt1",
+    "category": "shirt",
+    "code": 1,
+    "name": "Cloud cotton tee",
+    "src": "shirt1.svg"
+  },
+  {
+    "id": "shirt2",
+    "category": "shirt",
+    "code": 2,
+    "name": "Ink knit polo",
+    "src": "shirt2.svg"
+  },
+  {
+    "id": "shirt3",
+    "category": "shirt",
+    "code": 3,
+    "name": "Clay camp shirt",
+    "src": "shirt3.svg"
+  },
+  {
+    "id": "shirt4",
+    "category": "shirt",
+    "code": 4,
+    "name": "Sage overshirt",
+    "src": "shirt4.svg"
+  },
+  {
+    "id": "shirt5",
+    "category": "shirt",
+    "code": 5,
+    "name": "Breton stripe",
+    "src": "shirt5.svg"
+  },
+  {
+    "id": "shirt6",
+    "category": "shirt",
+    "code": 6,
+    "name": "Sunwashed linen",
+    "src": "shirt6.svg"
+  },
+  {
+    "id": "pants1",
+    "category": "pants",
+    "code": 1,
+    "name": "Indigo straight denim",
+    "src": "pants1.svg"
+  },
+  {
+    "id": "pants2",
+    "category": "pants",
+    "code": 2,
+    "name": "Sand chinos",
+    "src": "pants2.svg"
+  },
+  {
+    "id": "pants3",
+    "category": "pants",
+    "code": 3,
+    "name": "Olive cargo",
+    "src": "pants3.svg"
+  },
+  {
+    "id": "pants4",
+    "category": "pants",
+    "code": 4,
+    "name": "Charcoal pleats",
+    "src": "pants4.svg"
+  },
+  {
+    "id": "pants5",
+    "category": "pants",
+    "code": 5,
+    "name": "Ecru wide leg",
+    "src": "pants5.svg"
+  },
+  {
+    "id": "pants6",
+    "category": "pants",
+    "code": 6,
+    "name": "Washed blue denim",
+    "src": "pants6.svg"
+  },
+  {
+    "id": "shoes1",
+    "category": "shoes",
+    "code": 1,
+    "name": "Chalk court sneaker",
+    "src": "shoes1.svg"
+  },
+  {
+    "id": "shoes2",
+    "category": "shoes",
+    "code": 2,
+    "name": "Forest runner",
+    "src": "shoes2.svg"
+  },
+  {
+    "id": "shoes3",
+    "category": "shoes",
+    "code": 3,
+    "name": "Cocoa loafer",
+    "src": "shoes3.svg"
+  },
+  {
+    "id": "shoes4",
+    "category": "shoes",
+    "code": 4,
+    "name": "Ink high top",
+    "src": "shoes4.svg"
+  },
+  {
+    "id": "shoes5",
+    "category": "shoes",
+    "code": 5,
+    "name": "Sand desert boot",
+    "src": "shoes5.svg"
+  },
+  {
+    "id": "shoes6",
+    "category": "shoes",
+    "code": 6,
+    "name": "Clay trail sneaker",
+    "src": "shoes6.svg"
+  },
+  {
+    "id": "hat1",
+    "category": "hat",
+    "code": 1,
+    "name": "Ink baseball cap",
+    "src": "hat1.svg"
+  },
+  {
+    "id": "hat2",
+    "category": "hat",
+    "code": 2,
+    "name": "Oat bucket hat",
+    "src": "hat2.svg"
+  },
+  {
+    "id": "hat3",
+    "category": "hat",
+    "code": 3,
+    "name": "Rust beanie",
+    "src": "hat3.svg"
+  },
+  {
+    "id": "hat4",
+    "category": "hat",
+    "code": 4,
+    "name": "Sage five panel",
+    "src": "hat4.svg"
+  },
+  {
+    "id": "hat5",
+    "category": "hat",
+    "code": 5,
+    "name": "Cream baseball cap",
+    "src": "hat5.svg"
+  },
+  {
+    "id": "hat6",
+    "category": "hat",
+    "code": 6,
+    "name": "Charcoal bucket hat",
+    "src": "hat6.svg"
+  }
+]

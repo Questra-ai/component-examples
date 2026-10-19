@@ -1,0 +1,87 @@
+<number label="DesignVersion" size="3" where="execute" optional="1"><title>Assigned design version</title><exec>
+if DesignVersion.val is None:
+    DesignVersion.val = random.randint(1,12)
+</exec></number>
+<text label="DesignID" where="execute" optional="1"><title>Immutable design ID</title><exec>DesignID.val = "outfit-20261019-v2"</exec></text>
+<exec>
+if not p.get('outfitSession'):
+    p.outfitSession = str(random.randint(10000000,99999999)) + str(random.randint(10000000,99999999))
+</exec>
+<html label="OutfitStart" where="survey"><div id="outfit-start">Loading…</div></html>
+<suspend/>
+<loop label="@{label}" vars="task" randomizeChildren="0">
+<block label="OutfitRound" randomize="0">
+<exec>
+p.outfitTask = int("[loopvar: task]")
+p.shirtOffers = outfitOffers(DesignVersion.val, p.outfitTask, 0)
+p.pantsOffers = outfitOffers(DesignVersion.val, p.outfitTask, 1)
+p.shoesOffers = outfitOffers(DesignVersion.val, p.outfitTask, 2)
+p.hatOffers = outfitOffers(DesignVersion.val, p.outfitTask, 3)
+</exec>
+<number label="Task_[loopvar: task]" where="execute" optional="1" size="3"><title>Design task</title><exec>Task_[loopvar: task].val = p.outfitTask</exec></number>
+<text label="Offered_shirt_[loopvar: task]" where="execute" optional="1"><title>Offered shirt IDs in design slot order</title><exec>Offered_shirt_[loopvar: task].val = ",".join(["shirt%s" % x for x in p.shirtOffers])</exec></text>
+<text label="Offered_pants_[loopvar: task]" where="execute" optional="1"><title>Offered pants IDs in design slot order</title><exec>Offered_pants_[loopvar: task].val = ",".join(["pants%s" % x for x in p.pantsOffers])</exec></text>
+<text label="Offered_shoes_[loopvar: task]" where="execute" optional="1"><title>Offered shoes IDs in design slot order</title><exec>Offered_shoes_[loopvar: task].val = ",".join(["shoes%s" % x for x in p.shoesOffers])</exec></text>
+<text label="Offered_hat_[loopvar: task]" where="execute" optional="1"><title>Offered hat IDs in design slot order</title><exec>Offered_hat_[loopvar: task].val = ",".join(["hat%s" % x for x in p.hatOffers])</exec></text>
+<html label="OutfitMeta_[loopvar: task]" where="survey"><div id="outfit-meta" data-round="[loopvar: task]" data-version="${DesignVersion.val}" data-session="${p.outfitSession}" data-assets="/survey/${gv.survey.path}/"></div></html>
+<radio label="Shirt_[loopvar: task]" optional="0" ss:questionClassNames="outfit-native outfit-shirt"><title>Shirt</title>
+<row label="r1" value="1" cond="1 in p.shirtOffers">Cloud cotton tee</row>
+<row label="r2" value="2" cond="2 in p.shirtOffers">Ink knit polo</row>
+<row label="r3" value="3" cond="3 in p.shirtOffers">Clay camp shirt</row>
+<row label="r4" value="4" cond="4 in p.shirtOffers">Sage overshirt</row>
+<row label="r5" value="5" cond="5 in p.shirtOffers">Breton stripe</row>
+<row label="r6" value="6" cond="6 in p.shirtOffers">Sunwashed linen</row>
+<validate>
+if Shirt_[loopvar: task].val is not None:
+    if int(Shirt_[loopvar: task].selected.label[1:]) not in p.shirtOffers:
+        error("Please choose an available option.")
+</validate></radio>
+<radio label="Pants_[loopvar: task]" optional="0" ss:questionClassNames="outfit-native outfit-pants"><title>Pants</title>
+<row label="r1" value="1" cond="1 in p.pantsOffers">Indigo straight denim</row>
+<row label="r2" value="2" cond="2 in p.pantsOffers">Sand chinos</row>
+<row label="r3" value="3" cond="3 in p.pantsOffers">Olive cargo</row>
+<row label="r4" value="4" cond="4 in p.pantsOffers">Charcoal pleats</row>
+<row label="r5" value="5" cond="5 in p.pantsOffers">Ecru wide leg</row>
+<row label="r6" value="6" cond="6 in p.pantsOffers">Washed blue denim</row>
+<validate>
+if Pants_[loopvar: task].val is not None:
+    if int(Pants_[loopvar: task].selected.label[1:]) not in p.pantsOffers:
+        error("Please choose an available option.")
+</validate></radio>
+<radio label="Shoes_[loopvar: task]" optional="0" ss:questionClassNames="outfit-native outfit-shoes"><title>Shoes</title>
+<row label="r1" value="1" cond="1 in p.shoesOffers">Chalk court sneaker</row>
+<row label="r2" value="2" cond="2 in p.shoesOffers">Forest runner</row>
+<row label="r3" value="3" cond="3 in p.shoesOffers">Cocoa loafer</row>
+<row label="r4" value="4" cond="4 in p.shoesOffers">Ink high top</row>
+<row label="r5" value="5" cond="5 in p.shoesOffers">Sand desert boot</row>
+<row label="r6" value="6" cond="6 in p.shoesOffers">Clay trail sneaker</row>
+<validate>
+if Shoes_[loopvar: task].val is not None:
+    if int(Shoes_[loopvar: task].selected.label[1:]) not in p.shoesOffers:
+        error("Please choose an available option.")
+</validate></radio>
+<radio label="Hat_[loopvar: task]" optional="1" ss:questionClassNames="outfit-native outfit-hat"><title>Hat</title>
+<row label="r1" value="1" cond="1 in p.hatOffers">Ink baseball cap</row>
+<row label="r2" value="2" cond="2 in p.hatOffers">Oat bucket hat</row>
+<row label="r3" value="3" cond="3 in p.hatOffers">Rust beanie</row>
+<row label="r4" value="4" cond="4 in p.hatOffers">Sage five panel</row>
+<row label="r5" value="5" cond="5 in p.hatOffers">Cream baseball cap</row>
+<row label="r6" value="6" cond="6 in p.hatOffers">Charcoal bucket hat</row>
+<row label="r0" value="0">No hat</row>
+<exec>
+if Hat_[loopvar: task].val is None:
+    Hat_[loopvar: task].val = Hat_[loopvar: task].r0.index
+</exec>
+<validate>
+if Hat_[loopvar: task].val is not None:
+    if int(Hat_[loopvar: task].selected.label[1:]) not in p.hatOffers + [0]:
+        error("Please choose an available option.")
+</validate></radio>
+<suspend/>
+</block>
+<looprow label="1"><loopvar name="task">1</loopvar></looprow>
+<looprow label="2"><loopvar name="task">2</loopvar></looprow>
+<looprow label="3"><loopvar name="task">3</loopvar></looprow>
+<looprow label="4"><loopvar name="task">4</loopvar></looprow>
+<looprow label="5"><loopvar name="task">5</loopvar></looprow>
+</loop>

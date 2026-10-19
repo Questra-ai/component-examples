@@ -1,0 +1,13 @@
+{
+  "id": "outfit-20261019-v2",
+  "versions": 12,
+  "tasks": 5,
+  "conceptSlots": 3,
+  "categories": [
+    "shirt",
+    "pants",
+    "shoes",
+    "hat"
+  ],
+  "designSha256": "942752c812e6805a93907d9f67b14ec5bb6cddc49caa44fd94a7a8d7bcaf0de1"
+}
