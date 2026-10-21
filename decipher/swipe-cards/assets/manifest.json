@@ -1,0 +1,28 @@
+{
+  "generator": "Built-in image_gen",
+  "date": "2026-10-21",
+  "style": "Original unbranded photorealistic caf\u00e9 drink photography; portrait 2:3, drink in upper/middle two thirds, warm softly blurred caf\u00e9, natural side light, quiet lower tabletop for UI overlay; no text, logos, people, watermark or baked-in gradient.",
+  "assets": [
+    {
+      "file": "honey-oat-latte.jpg",
+      "sha256": "6b2eb2c2633295562487768b0a5334de9c3a0bedff1198c3ddac5cac86a42dc2",
+      "subject": "honey oat latte"
+    },
+    {
+      "file": "peach-iced-tea.jpg",
+      "sha256": "09720854fa9e9f04f7363546791b859af2f5888374adf3e9e607dbc3843d88eb",
+      "subject": "peach iced tea"
+    },
+    {
+      "file": "strawberry-matcha.jpg",
+      "sha256": "c4afdfab5311fed1019af30e895d5e81c4dbf8e0214e7ca02d412416c347fe1a",
+      "subject": "strawberry matcha"
+    },
+    {
+      "file": "vanilla-cold-brew.jpg",
+      "sha256": "ead30ec4fc832930bd973b642ff0b38e579cf5c9cdc62bd468226a5dc20f56f5",
+      "subject": "vanilla cold brew"
+    }
+  ],
+  "processing": "JPEG conversion, quality 82, longest edge 1200; gradients and text rendered by CSS."
+}

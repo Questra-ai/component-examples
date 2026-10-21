@@ -1,25 +1,69 @@
-<survey name="Weekend ideas" alt="Weekend ideas" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source">
+<survey name="Café menu preferences" alt="Café menu preferences" compat="144" fir="on" html:showNumber="0" builder:wizardCompleted="1" state="testing" ss:enableNavigation="0" extraVariables="source">
 <style name="respview.client.css" mode="after"><![CDATA[
+<!-- questra-theme:start -->
+<style>/* Questra brand: questra-workspace/brand/motion/motion.js, BRAND (lines 51–52).
+   Shared shell and native controls only. No font or stylesheet network dependency. */
+:root{--qt-chalk:#f5f1ec;--qt-coral:#ff505d;--qt-slate:#103743;--qt-line:#10374333;--qt-surface:#fff;--qt-radius:24px;color-scheme:light}
+html{background:var(--qt-chalk)}
+html body,html body.survey-page{margin:0;background:var(--qt-chalk);color:var(--qt-slate);font:16px/1.5 Arial,Helvetica,sans-serif;min-height:100vh}
+body #survey{box-sizing:border-box;width:100%;max-width:1240px;margin:0 auto;padding:28px 32px 48px;background:transparent;border:0;box-shadow:none;border-radius:0}
+body .survey-section,body .survey-body{box-sizing:border-box;max-width:none;width:100%;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
+body .survey-header,body .survey-footer{background:transparent;color:var(--qt-slate)}
+body .question{box-sizing:border-box;margin:24px 0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;color:var(--qt-slate)}
+body .question-text{font-size:clamp(22px,3vw,34px);line-height:1.2;letter-spacing:-.6px;color:var(--qt-slate)}
+body .instruction-text{color:var(--qt-slate);line-height:1.6}
+body .answers{max-width:100%;overflow-x:auto}
+body .answers input:not([type=radio]):not([type=checkbox]):not([type=hidden]),body .answers textarea,body .answers select{box-sizing:border-box;max-width:100%;font:inherit;color:var(--qt-slate);background:white;border:1px solid var(--qt-slate);border-radius:8px;padding:10px}
+body input[type=radio],body input[type=checkbox]{accent-color:var(--qt-slate);min-width:20px;min-height:20px}
+body .survey-buttons{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end;padding:24px 0}
+body #btn_continue,body #btn_finish,body #btn_back{font:700 16px/1.4 Arial,sans-serif;min-height:48px;padding:13px 26px;border:2px solid var(--qt-slate);border-radius:999px;background:var(--qt-slate);color:var(--qt-chalk);cursor:pointer;box-shadow:4px 4px 0 var(--qt-coral)}
+body #btn_back{background:transparent;color:var(--qt-slate);box-shadow:none}
+body :focus-visible{outline:3px solid var(--qt-slate);outline-offset:4px}
+body .survey-error,body .question-error,body .error-text{color:var(--qt-slate);background:var(--qt-chalk);border-left:4px solid var(--qt-coral);padding:12px}
+body .progress-bar,body [role="progressbar"]{display:none!important}
+.qt-footer{display:flex;justify-content:center;padding:32px 20px 40px;background:transparent}
+.qt-footer img{display:block;width:120px;height:36px;object-fit:contain}
+/* The optional early gate never hides the form, navigation or validation messages.
+   CSS provides an independent fail-open deadline even if a later script throws. */
+html.qt-pending .question,html.qt-pending .outfit-ui,html.qt-pending .sh-ui{visibility:hidden;animation:qt-reveal 0s 1.8s forwards}
+html.qt-pending .survey-body:before{content:"Preparing your activity…";display:block;padding:24px;border-left:4px solid var(--qt-coral);animation:qt-dismiss 0s 1.8s forwards}
+\@keyframes qt-reveal{to{visibility:visible}}
+\@keyframes qt-dismiss{to{display:none;visibility:hidden;height:0;padding:0}}
+\@media(max-width:650px){body #survey{padding:16px 12px 32px}body .question{padding:0;border-radius:0;margin:16px 0}}
+\@media(prefers-reduced-motion:reduce){body{scroll-behavior:auto}}
+</style>
+<script>/* Runs inline in the head, before body parsing; no jQuery dependency. */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var expired = false;
+  root.classList.add('qt-pending');
+  function reveal(fallback) {
+    if (fallback) expired = true;
+    root.classList.remove('qt-pending');
+  }
+  window.QuestraTheme = {
+    canEnhance: function () { return !expired; },
+    ready: function () { reveal(false); }
+  };
+  setTimeout(function () { reveal(true); }, 1800);
+  // Keyboard/pointer intent takes precedence over cosmetic loading.
+  document.addEventListener('keydown', function () { reveal(true); }, {once:true,capture:true});
+  document.addEventListener('pointerdown', function () { reveal(true); }, {once:true,capture:true});
+  window.addEventListener('pageshow', function (event) { if (event.persisted) reveal(true); });
+
+})();
+</script>
+<!-- questra-theme:end -->
 <style>/* qsw-shared-css */
-.question.qswipe { --qsw-ink:#243831; --qsw-green:#16624b; }
+.question.qswipe { max-width:580px;margin-left:auto;margin-right:auto; --qsw-ink:var(--qt-slate); --qsw-green:var(--qt-slate); }
 .question.qswipe .qsw-ui { overflow:clip; padding:12px 10px; max-width:480px; margin:24px auto 12px; color:var(--qsw-ink); font:16px/1.5 system-ui,sans-serif; }
 .question.qswipe .qsw-ui * { box-sizing:border-box; }
-.question.qswipe .qsw-card { position:relative; z-index:1; overflow:hidden; will-change:transform,opacity; border:1px solid #dce5db; border-radius:24px; box-shadow:0 14px 38px #233b2814; background:#fafbf7; touch-action:pan-y; user-select:none; }
-.question.qswipe .qsw-art { height:190px; position:relative; overflow:hidden; background:#dce9c8; }
-.question.qswipe .qsw-art span { position:absolute; width:95px; height:95px; border-radius:50%; background:#f7b56b; top:24px; left:57%; }
-.question.qswipe .qsw-art i { position:absolute; width:340px; height:230px; border-radius:50%; background:#81aa85; left:-45px; top:85px; transform:rotate(-23deg); }
-.question.qswipe .qsw-art b { position:absolute; width:340px; height:210px; border-radius:50%; background:#447b62; right:-70px; top:117px; transform:rotate(16deg); }
-.question.qswipe .qsw-card[data-tone="1"] .qsw-art { background:#f4ddc6; }
-.question.qswipe .qsw-card[data-tone="1"] .qsw-art i { background:#d6956b; }
-.question.qswipe .qsw-card[data-tone="1"] .qsw-art b { background:#a96550; }
-.question.qswipe .qsw-card[data-tone="2"] .qsw-art { background:#e4dff0; }
-.question.qswipe .qsw-card[data-tone="2"] .qsw-art i { background:#aaa1c9; }
-.question.qswipe .qsw-card[data-tone="2"] .qsw-art b { background:#706c99; }
-.question.qswipe .qsw-card[data-tone="3"] .qsw-art { background:#d6e9ec; }
-.question.qswipe .qsw-card[data-tone="3"] .qsw-art i { background:#7eb3b3; }
-.question.qswipe .qsw-card[data-tone="3"] .qsw-art b { background:#447e87; }
-.question.qswipe .qsw-card-copy { padding:22px 26px 24px; }
+.question.qswipe .qsw-card { position:relative; z-index:1; overflow:hidden; will-change:transform,opacity; border:1px solid #10374340; border-radius:24px; box-shadow:none; background:var(--qt-chalk); touch-action:pan-y; user-select:none; }
+.question.qswipe .qsw-card-copy { padding:36px 28px; min-height:220px; display:flex; flex-direction:column; justify-content:center; }
+.question.qswipe .qsw-eyebrow { margin:0 0 18px; font-size:12px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }
 .question.qswipe .qsw-title { font:650 27px/1.2 system-ui,sans-serif; letter-spacing:-.04em; margin:0; color:var(--qsw-ink); }
+.question.qswipe .qsw-description { margin:16px 0 0; font-size:18px; line-height:1.5; }
 .question.qswipe .qsw-actions { display:flex; gap:10px; margin:18px 0 10px; }
 .question.qswipe .qsw-ui button { cursor:pointer; font:600 14px/1.3 system-ui,sans-serif; border:1px solid #ccd8cf; border-radius:13px; background:white; color:var(--qsw-ink); min-height:44px; padding:10px 12px; }
 .question.qswipe .qsw-actions button { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -30,14 +74,12 @@
 .question.qswipe .qsw-ui button[aria-disabled="true"] { opacity:.45; cursor:default; }
 .question.qswipe .qsw-ui :focus-visible { outline:3px solid #2257a7; outline-offset:4px; }
 .question.qswipe [hidden] { display:none!important; }
-\@media (max-width:480px) { .question.qswipe .qsw-art { height:145px; } .question.qswipe .qsw-card-copy { padding:18px 20px; } .question.qswipe .qsw-title { font-size:24px; } }
 \@media (prefers-reduced-motion:reduce) { .question.qswipe .qsw-card { transform:none!important; transition:none!important; } }
 .question.qswipe .qsw-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
-.question.qswipe[data-swipe-ready="true"] > .instruction-text { display:none; }
-.qsw-page > .survey-header > .progress-bar, .qsw-page .qsw-test-notice { display:none!important; }
+
+
 
 .question.qswipe .qsw-stack { position:relative; }
-.question.qswipe .qsw-behind { position:absolute; inset:0; z-index:0; transform:translateY(9px) scale(.96); pointer-events:none; transition:transform 240ms ease; }
 .question.qswipe .qsw-cue { position:absolute; top:24px; left:24px; padding:5px 12px; border:3px solid currentColor; border-radius:8px; color:#16624b; background:#ffffffed; font:750 23px/1.3 system-ui,sans-serif; opacity:0; transform:rotate(-10deg); }
 .question.qswipe .qsw-cue[data-direction="c1"] { color:#a34432; left:auto; right:24px; transform:rotate(10deg); }
 .question.qswipe .qsw-cue[data-direction="c2"] { color:#66548a; }
@@ -45,12 +87,29 @@
 form.qsw-form .qsw-continue-hidden { display:none!important; }
 .question.qswipe .qsw-completion { padding:30px 12px; margin:0; text-align:center; font:600 18px/1.5 system-ui,sans-serif; }
 
+/* Photo cards: image is decorative; native text remains the answer label. */
+.question.qswipe .qsw-ui { max-width:440px; margin:12px auto; padding:8px; }
+.question.qswipe .qsw-card { background:#103743; border:0; border-radius:24px; isolation:isolate; }
+.question.qswipe .qsw-photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 40%; pointer-events:none; z-index:-2; }
+.question.qswipe .qsw-card::after { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(180deg,transparent 25%,rgba(5,18,23,.12) 40%,rgba(5,18,23,.82) 70%,#051217 100%); }
+.question.qswipe .qsw-card-copy { min-height:440px; min-height:clamp(350px,58svh,520px); padding:150px 24px 26px; justify-content:flex-end; color:#fff; }
+.question.qswipe .qsw-eyebrow { font-size:11px; letter-spacing:.12em; margin:0 0 9px; color:#fff; }
+.question.qswipe .qsw-title { font-size:32px; font-weight:750; line-height:1.08; color:#fff; letter-spacing:-.035em; }
+.question.qswipe .qsw-description { font-size:16px; line-height:1.4; margin:12px 0 0; color:#fff; }
+.question.qswipe .qsw-actions { gap:8px; margin:12px 0 0; }
+.question.qswipe .qsw-actions button { flex-direction:column; gap:5px; min-height:64px; padding:8px 4px; font-size:12px; border-radius:16px; }
+.question.qswipe .qsw-actions button span { font-size:27px; }
+.question.qswipe .qsw-card:focus-visible { outline:3px solid #ff505d; outline-offset:3px; }
+.question.qswipe .qsw-cue { font-size:17px; top:18px; left:18px; max-width:85%; }
+\@media (max-width:480px) { .question.qswipe .qsw-ui { padding:5px; } .question.qswipe .qsw-card-copy { padding:125px 20px 24px; min-height:clamp(280px,48svh,480px); } .question.qswipe .qsw-title { font-size:30px; } }
+
 </style>
 ]]></style>
 <style name="respview.client.js" mode="after" wrap="ready"><![CDATA[
 /* qsw-shared-js: one definition per respondent page; native radios are the only answer model. */
 (function () {
   'use strict';
+  if(window.QuestraTheme&&!window.QuestraTheme.canEnhance())return;
   document.querySelectorAll('form').forEach(function (form) {
     if (form.dataset.qswSharedReady) return;
     var roots = Array.from(form.querySelectorAll('.question.qswipe'));
@@ -130,7 +189,8 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
           if (headers && headers.split(/\s+/).some(function (h) { return h.endsWith('_' + code); })) byCode[code] = input;
         });
       });
-      return { inputs: inputs, byCode: byCode, title: legend && legend.textContent.trim() };
+      var media = legend && legend.querySelector('[data-qsw-image]');
+      return { inputs: inputs, byCode: byCode, title: legend && legend.textContent.trim(), image: media && media.getAttribute('data-qsw-image') };
     });
     // Unsupported native markup leaves the matrix fully usable.
     if (!rows.length || rows.some(function (r) { return !r.title || r.inputs.length !== 3 || !r.byCode.c1 || !r.byCode.c2 || !r.byCode.c3; })) return;
@@ -139,10 +199,9 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
     ui.setAttribute('aria-label', 'Swipe cards');
     var helpId = root.id + '-swipe-help';
     ui.innerHTML = '<p class="qsw-sr qsw-status" role="status" aria-live="polite" aria-atomic="true"></p>' +
-      '<p class="qsw-sr qsw-help">Swipe left for Dislike or right for Like. On the focused card, press Left Arrow for Dislike, S for Skip, or Right Arrow for Like. Skip is an explicit answer.</p>' +
-      '<div class="qsw-stack"><article class="qsw-card" tabindex="0" aria-roledescription="swipe card"><div class="qsw-art" aria-hidden="true"><span></span><i></i><b></b></div>' +
-      '<div class="qsw-card-copy"><h2 class="qsw-title"></h2></div><span class="qsw-cue" aria-hidden="true"></span></article></div>' +
-      '<div class="qsw-actions" role="group" aria-label="Choose an answer"><button type="button" data-answer="c1"><span aria-hidden="true">−</span>Dislike</button><button type="button" data-answer="c2"><span aria-hidden="true">→</span>Skip</button><button type="button" data-answer="c3"><span aria-hidden="true">+</span>Like</button></div>';
+      '<p class="qsw-sr qsw-help">Swipe left for Not interested or right for Interested. On the focused card, press Left Arrow for Not interested, S for Not sure, or Right Arrow for Interested. Not sure is an explicit answer.</p>' +
+      '<div class="qsw-stack"><article class="qsw-card" tabindex="0" aria-roledescription="swipe card"><img class="qsw-photo" alt="" draggable="false" decoding="async" /><div class="qsw-card-copy"><p class="qsw-eyebrow">Seasonal café menu</p><h2 class="qsw-title"></h2><p class="qsw-description"></p></div><span class="qsw-cue" aria-hidden="true"></span></article></div>' +
+      '<div class="qsw-actions" role="group" aria-label="Choose an answer"><button type="button" data-answer="c1"><span aria-hidden="true">−</span>Not interested</button><button type="button" data-answer="c2"><span aria-hidden="true">→</span>Not sure</button><button type="button" data-answer="c3"><span aria-hidden="true">+</span>Interested</button></div>';
     var completion = document.createElement('p');
     completion.className = 'qsw-completion';
     completion.setAttribute('role', 'status');
@@ -152,13 +211,10 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
     var stack = ui.querySelector('.qsw-stack');
     var actions = ui.querySelector('.qsw-actions');
     var card = ui.querySelector('.qsw-card');
+    var photo = card.querySelector('.qsw-photo');
+    photo.addEventListener('error', function () { photo.hidden = true; });
+    rows.forEach(function (row) { if (row.image) { var preload = new Image(); preload.src = row.image; } });
     var status = ui.querySelector('.qsw-status');
-    var behind = card.cloneNode(true);
-    behind.classList.add('qsw-behind');
-    behind.removeAttribute('tabindex');
-    behind.removeAttribute('aria-roledescription');
-    behind.setAttribute('aria-hidden', 'true');
-    card.before(behind);
     var cue = card.querySelector('.qsw-cue');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     var busy = false, timer = null, pointer = null;
@@ -193,29 +249,33 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
       card.style.transform = '';
       card.style.opacity = '';
       cue.style.opacity = '0';
-      behind.style.transform = '';
     }
-    function threshold() { return Math.max(65, Math.min(120, card.clientWidth * 0.27)); }
+    function threshold() { return Math.max(36, Math.min(72, card.clientWidth * 0.15)); }
+    // Directional intent, not a drop target. Small pullback after crossing is allowed.
+    function commits(dx, dy, peak) {
+      var distance = Math.abs(dx), required = threshold();
+      return distance > Math.abs(dy) * 1.2 &&
+        (distance >= required || (peak * dx > 0 && Math.abs(peak) >= required && distance >= required * 0.65));
+    }
     function move(dx, dy) {
       var fraction = Math.min(1, Math.abs(dx) / threshold());
       card.style.transition = 'none';
       card.style.transform = 'translate(' + dx + 'px,' + (dy * 0.12) + 'px) rotate(' + Math.max(-14, Math.min(14, dx / 18)) + 'deg)';
       card.style.opacity = String(1 - Math.min(0.78, Math.abs(dx) / (card.clientWidth * 0.85)));
-      cue.textContent = dx < 0 ? 'Dislike' : 'Like';
+      cue.textContent = (commits(dx, dy, pointer ? pointer.peak : dx) ? 'Release to ' : '') + (dx < 0 ? 'Not interested' : 'Interested');
       cue.dataset.direction = dx < 0 ? 'c1' : 'c3';
       cue.style.opacity = String(fraction);
-      behind.style.transform = 'translateY(' + (9 * (1 - fraction)) + 'px) scale(' + (0.96 + 0.04 * fraction) + ')';
     }
     function snapBack() {
       lock(true);
       card.style.transition = reduced.matches ? 'none' : 'transform 280ms cubic-bezier(.2,1.4,.4,1), opacity 220ms ease';
       card.style.transform = ''; card.style.opacity = '';
-      cue.style.opacity = '0'; behind.style.transform = '';
+      cue.style.opacity = '0';
       timer = window.setTimeout(function () { resetMotion(); lock(false); }, reduced.matches ? 0 : 280);
     }
     ui.querySelector('.qsw-help').id = helpId;
     card.setAttribute('aria-describedby', helpId);
-    var labels = { c1: 'Dislike', c2: 'Skip', c3: 'Like' };
+    var labels = { c1: 'Not interested', c2: 'Not sure', c3: 'Interested' };
     var current = rows.findIndex(function (r) { return !selected(r); });
     if (current < 0) current = 0;
     function selected(row) { return Object.keys(row.byCode).find(function (code) { return row.byCode[code].checked; }) || null; }
@@ -223,14 +283,14 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
       var row = rows[current];
       var chosen = selected(row);
       var count = rows.filter(function (r) { return selected(r); }).length;
-      card.querySelector('.qsw-title').textContent = row.title;
+      photo.hidden = !row.image;
+      if (row.image) photo.src = row.image; else photo.removeAttribute('src');
+      var parts = row.title.split(' — ');
+      card.querySelector('.qsw-title').textContent = parts.shift();
+      card.querySelector('.qsw-description').textContent = parts.join(' — ');
+      card.querySelector('.qsw-description').hidden = !parts.length;
       card.setAttribute('aria-label', row.title + '. ' + (chosen ? 'Current answer: ' + labels[chosen] : 'Not yet answered'));
       card.dataset.tone = String(current % 4);
-      behind.hidden = current >= rows.length - 1;
-      if (!behind.hidden) {
-        behind.querySelector('.qsw-title').textContent = rows[current + 1].title;
-        behind.dataset.tone = String((current + 1) % 4);
-      }
       ui.querySelectorAll('[data-answer]').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.answer === chosen)); });
       status.textContent = (message ? message + ' ' : '') + 'Card ' + (current + 1) + ' of ' + rows.length + ': ' + row.title + '. ' + count + ' of ' + rows.length + ' answered.';
     }
@@ -248,7 +308,6 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
       card.style.transition = reduced.matches ? 'none' : 'transform 300ms cubic-bezier(.25,.65,.4,1), opacity 260ms ease';
       card.style.transform = code === 'c2' ? 'translateY(-35px) scale(.96)' : 'translateX(' + (direction * (card.clientWidth + 120)) + 'px) rotate(' + (direction * 18) + 'deg)';
       card.style.opacity = '0';
-      behind.style.transform = 'translateY(0) scale(1)';
       timer = window.setTimeout(function () {
         if (phase !== 'answering') return;
         if (rows.every(function (row) { return selected(row); })) { completeDeck(); return; }
@@ -264,20 +323,26 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
     });
     card.addEventListener('pointerdown', function (event) {
       if (busy || !event.isPrimary || event.button !== 0) return;
-      pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, axis: null };
+      pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, axis: null, peak: 0 };
       card.setPointerCapture(event.pointerId);
     });
     card.addEventListener('pointermove', function (event) {
       if (!pointer || pointer.id !== event.pointerId || busy) return;
       var dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
-      if (!pointer.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8) pointer.axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';
-      if (pointer.axis === 'x') move(dx, dy);
+      if (!pointer.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.2) pointer.axis = 'x';
+        else if (Math.abs(dy) > Math.abs(dx) * 1.2) pointer.axis = 'y';
+      }
+      if (pointer.axis === 'x') {
+        if (dx * pointer.peak < 0 || Math.abs(dx) > Math.abs(pointer.peak)) pointer.peak = dx;
+        move(dx, dy);
+      }
     });
     function endGesture(event) {
       if (!pointer || pointer.id !== event.pointerId || busy) return;
-      var dx = event.clientX - pointer.x, axis = pointer.axis;
+      var dx = event.clientX - pointer.x, dy = event.clientY - pointer.y, axis = pointer.axis, peak = pointer.peak;
       pointer = null;
-      if (event.type === 'pointerup' && axis === 'x' && Math.abs(dx) >= threshold()) choose(dx < 0 ? 'c1' : 'c3');
+      if (event.type === 'pointerup' && axis === 'x' && commits(dx, dy, peak)) choose(dx < 0 ? 'c1' : 'c3');
       else snapBack();
     }
     card.addEventListener('pointerup', endGesture);
@@ -308,15 +373,21 @@ form.qsw-form .qsw-continue-hidden { display:none!important; }
   }
 }());
 
+
+if(window.QuestraTheme)window.QuestraTheme.ready();
 ]]></style>
 <radio label="QSwipe" type="rating" optional="0" ss:questionClassNames="qswipe">
-<title>Make room for a great weekend.</title>
-<comment>How do you feel about each activity? Choose Dislike, Skip, or Like for every idea.</comment>
-<row label="r1">A sunrise walk</row>
-<row label="r2">Trying a new recipe</row>
-<row label="r3">An afternoon at a museum</row>
-<row label="r4">A picnic in the park</row>
-<col label="c1" value="1">Dislike</col><col label="c2" value="2">Skip</col><col label="c3" value="3">Like</col>
+<title>Which of these drinks would you consider ordering?</title>
+<comment>Think about your next café visit. Swipe left for Not interested, right for Interested, or choose an answer below.</comment>
+<row label="r1"><span data-qsw-image="[rel honey-oat-latte.jpg]">Honey oat latte — espresso with oat milk and a touch of honey</span></row>
+<row label="r2"><span data-qsw-image="[rel peach-iced-tea.jpg]">Peach iced tea — black tea with peach and a squeeze of lemon</span></row>
+<row label="r3"><span data-qsw-image="[rel vanilla-cold-brew.jpg]">Vanilla cold brew — slow-steeped coffee with vanilla cream</span></row>
+<row label="r4"><span data-qsw-image="[rel strawberry-matcha.jpg]">Strawberry matcha — green tea with milk and strawberry purée</span></row>
+<col label="c1" value="1">Not interested</col><col label="c2" value="2">Not sure</col><col label="c3" value="3">Interested</col>
 </radio><suspend/>
 
+<!-- questra-theme:start -->
+<style name="survey.completion"><![CDATA[]]></style>
+<style name="survey.respview.footer" mode="after"><![CDATA[<footer class="qt-footer"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjQ4MCIgdmlld0JveD0iMCAwIDE2MDAgNDgwIj48cGF0aCBkPSJNMTE1Ni4wNSwzMDAuNDFjLTM0LjgyLDQwLjQtNzIuNzUsNzIuNjYtMTE1LjM4LDk4LjU0LTg2Ljk0LDUyLjc3LTE5My42OCw3OC40Mi0zMjYuMTcsNzguNDJzLTIzOS4yOC0yNS42NS0zMjYuMjItNzguNDJjLTQ0LjQtMjYuOTQtODMuNjYtNjAuNzMtMTE5LjY4LTEwMy41MywxNC4yNS00LjkzLDI3LjMyLTExLjk2LDM4Ljg1LTIwLjc5LDc3LjM4LDg4LjQyLDE5NS4zMywxNTkuNTgsNDA3LjA1LDE1OS41OCwxOTYuOTUsMCwzMTIuNzgtNjEuNiwzOTAuMjMtMTQxLjM3LDExLjExLDUuMzUsMjQuMzIsOC4yNywzOS4xLDguMjcsNC4yMSwwLDguMjktLjIzLDEyLjIxLS43WiIgZmlsbD0iIzEwMzc0MyIvPjxwYXRoIGQ9Ik0zOTIuNDMsMjA2LjY1Vjc4LjQyaDQ0LjE5djExNS4yMWMwLDI4LjgsMTguNTQsNDguMTQsNDYuOTUsNDguMTQsMjkuOTksMCw1MC4xMS0xOS43Myw1MC4xMS00OC45M3YtMTE0LjQyaDQ0LjE5djE0MC4wN2MwLDExLjQ0LDcuMSwxOC41NCwxOC41NCwxOC41NGgzLjk0djQyLjYxaC0xMy4wMmMtMjYuNDMsMC00My40LTEwLjI2LTUwLjExLTI5LjItMTUuMzksMjIuMS0zOC42NywzMy45My02Ny44NywzMy45My00Ni4xNiwwLTc2Ljk0LTMwLjc4LTc2Ljk0LTc3LjczWiIgZmlsbD0iIzEwMzc0MyIvPjxwYXRoIGQ9Ik02MTguMjIsMTc5LjAzYzAtNTkuOTcsNDYuMTYtMTA1LjM1LDEwNy4zMy0xMDUuMzVzMTA3LjcyLDQ1LjM4LDEwNy43MiwxMDUuNzVjMCw1LjUyLS40LDExLjQ0LTEuMTksMTYuNTdoLTE2Ni41MWM2LjcxLDI5LjIsMzAuMzgsNDguNTMsNjEuOTUsNDguNTMsMjMuMjgsMCw0My40LTEwLjI2LDUzLjY2LTI1LjY1aDQ4LjkzYy0xNi4xOCwzOS4wNi01NS42Myw2NS41LTEwMy4zOCw2NS41LTYyLjM0LDAtMTA4LjUxLTQ1LjM3LTEwOC41MS0xMDUuMzVaTTY2NS45NiwxNTkuN2gxMTkuOTVjLTYuNzEtMjcuNjItMzAuMzgtNDYuMTYtNjAuMzctNDYuMTZzLTUyLjQ4LDE4LjE1LTU5LjU4LDQ2LjE2WiIgZmlsbD0iIzEwMzc0MyIvPjxwYXRoIGQ9Ik04NjAuMDYsMjIwLjQ2aDQ0Ljk4YzAsMTUuMzksMTQuNiwyNS42NSwzNS45MSwyNS42NSwxOS43MywwLDMyLjc0LTkuMDgsMzIuNzQtMjEuNywwLTM2LjMtMTEwLjQ3LTE2LjE4LTExMC40Ny04Ny41OSwwLTM5LjA2LDMxLjE3LTYzLjEzLDc1Ljc2LTYzLjEzczc2LjU1LDI0Ljg2LDc2LjU1LDYxLjE2aC00NC45OGMwLTEzLjgxLTEzLjAyLTIzLjI4LTMxLjk2LTIzLjI4cy0zMC43Nyw4LjI5LTMwLjc3LDIwLjUyYzAsMzUuMTEsMTEwLjg3LDE1Ljc4LDExMC44Nyw4Ny41OSwwLDM5LjA2LTMxLjE3LDY0LjcxLTc4LjEyLDY0Ljcxcy04MC40OS0yNi4wNC04MC40OS02My45MloiIGZpbGw9IiMxMDM3NDMiLz48cGF0aCBkPSJNMTIzOC41Nyw3OC40Mmg0NC4xOXYzMy41NGMxNS43OS0yMi44OCwzOS4wNi0zNi42OSw2Ny40Ny0zNi42OWg3LjF2NDUuMzdoLTcuMWMtNDIuNjIsMC02Ny40NywyNC4wNy02Ny40Nyw2MS4xNnY5Ny44NWgtNDQuMTlWNzguNDJaIiBmaWxsPSIjMTAzNzQzIi8+PHBhdGggZD0iTTEzNjQuMDUsMTc5LjAzYzAtNTkuOTcsNDIuMjItMTA1LjM1LDk5LjAzLTEwNS4zNSwyOS42LDAsNTQuMDYsMTIuNjMsNzAuNjMsMzMuNTR2LTI4LjhoNDQuMTl2MTQwLjA3YzAsMTEuNDQsNi43MSwxOC41NCwxOC41NCwxOC41NGgzLjU1djQyLjYxaC0xMi42M2MtMjcuNjIsMC00NC45OC0xMS4wNS01MC45LTMxLjk2LTE2Ljk3LDIyLjg5LTQyLjYyLDM2LjctNzMuNCwzNi43LTU2LjgxLDAtOTkuMDMtNDUuMzctOTkuMDMtMTA1LjM1Wk0xNTMzLjcxLDE3OS4wM2MwLTM1LjUxLTI2LjQzLTYyLjc0LTYxLjk0LTYyLjc0cy02Mi4zNCwyNy4yMi02Mi4zNCw2Mi43NCwyNi40NCw2Mi43NCw2Mi4zNCw2Mi43NCw2MS45NC0yNy4yMiw2MS45NC02Mi43NFoiIGZpbGw9IiMxMDM3NDMiLz48cGF0aCBkPSJNMTQ0LjI2LDgxLjg3Yy01Ljk4LDcuMzQtMTAuOTEsMTUuNi0xNC40MywyNC42Nkg0OS4zN3YtMjQuNjZoOTQuODlaIiBmaWxsPSIjZmY1MDVkIi8+PHJlY3QgeT0iODEuODUiIHdpZHRoPSIyNC42NyIgaGVpZ2h0PSIyNC42NyIgZmlsbD0iI2ZmNTA1ZCIvPjxwYXRoIGQ9Ik0xMjIuOTIsMTQzLjUyYzAsNC4xOS4yNSw4LjMyLjc0LDEyLjMzaC00OS42M3YtMjQuNjZoNDkuNjNjLS40OSw0LjAxLS43NCw4LjE0LS43NCwxMi4zM1oiIGZpbGw9IiNmZjUwNWQiLz48cGF0aCBkPSJNMTQ0LjI2LDIwNS4xOEg0OS4zN3YtMjQuNjZoODAuNDZjMy41MSw5LjA2LDguNDUsMTcuMzMsMTQuNDMsMjQuNjZaIiBmaWxsPSIjZmY1MDVkIi8+PHJlY3QgeD0iMjQuNjciIHk9IjEzMS4xOSIgd2lkdGg9IjI0LjY3IiBoZWlnaHQ9IjI0LjY3IiBmaWxsPSIjZmY1MDVkIi8+PHJlY3QgeT0iMTgwLjUzIiB3aWR0aD0iMjQuNjciIGhlaWdodD0iMjQuNjciIGZpbGw9IiNmZjUwNWQiLz48cGF0aCBkPSJNMTA3Ni43NSwyMjEuMjV2LTEwMi41OWgtMzMuOTN2LTQwLjI0aDIwLjUxYzEwLjI2LDAsMTUuNzktNS41MiwxNS43OS0xNS43OFYyMy45N2g0MS44MnY1NC40NWg2NS44OXY0MC4yNGgtNjUuODl2OTguMjVjMCwxMy40MSw5LjA4LDIyLjEsMjIuODksMjIuMXMyMi44OS05LjQ3LDIyLjg5LTI1LjI1aDM5LjQ2YzAsNDAuMjQtMjUuMjUsNjUuODktNjUuNSw2NS44OXMtNjMuOTItMjMuMjgtNjMuOTItNTguNFoiIGZpbGw9IiMxMDM3NDMiLz48cGF0aCBkPSJNMzYxLjA0LDE0Mi43MmMwLDgwLjA5LTYxLjU0LDE0MC4wMi0xNDMuMjMsMTQwLjAyLTQ2Ljk4LDAtODcuNDktMjAuMjktMTEzLjMyLTUyLjloNzEuNThjMTIuNDUsNS45MiwyNi42NCw5LjE4LDQxLjc0LDkuMTgsMS45OSwwLDMuOTYtLjA2LDUuOTEtLjE3LTcuMDgtMTAuNjctMTMuOTktMjEuNzItMjEuMDYtMzMuNjhsMzcuMTgtMjIuMDFjOC42NywxNC42NywxNy40OSwyOC43MSwyNy4yNCw0Mi44NiwyNy44Ni0xNi4yNyw0NS44Ny00Ni40NSw0NS44Ny04Mi41LDAtNTQuNDQtNDEuMDctOTUuNTEtOTUuMTQtOTUuNTEtMTUuMSwwLTI5LjI5LDMuMjctNDEuNzQsOS4xOWgtNzMuNjhDMTI4LjEsMjMuNDcsMTY5LjUzLDIuNjMsMjE3LjgxLDIuNjNjODEuNjksMCwxNDMuMjMsNjAsMTQzLjIzLDE0MC4wOVoiIGZpbGw9IiMxMDM3NDMiLz48L3N2Zz4=" data-brand-source="https://www.questra.ai/logo/primary/full-color.svg" alt="Questra" width="120" height="36" decoding="async" /></footer>]]></style>
+<!-- questra-theme:end -->
 </survey>
