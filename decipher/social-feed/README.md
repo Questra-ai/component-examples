@@ -6,7 +6,9 @@ This example now uses the [shared Questra theme](../theme/README.md) for its pag
 
 [Try the native survey](https://sw2.decipherinc.com/survey/selfserve/57d/2610180)
 
-Five feeds of 20 posts, each with four sponsored ads interspersed among 16 organic posts (20% ads). Participants scroll and Like posts, or double-click/double-tap an image. Likes can be undone; zero likes is valid. Native Decipher fields store the assigned offers, Likes and qualifying visible time in milliseconds.
+Five feeds of 20 posts, each with four sponsored ads interspersed among 16 organic posts (20% ads). Participants scroll and Like posts, or double-click/double-tap an image. Likes can be undone; zero likes is valid.
+
+Captured data includes assigned ad creatives, Likes and **per-ad time in view**, saved in native Decipher fields for analysis. Separate cumulative millisecond measures record when at least 1% or 50% of each full ad card is visible, with visibility and focus gates excluding background time. Stable creative and placement IDs let analysts compare exposure alongside Likes. Time in view measures an opportunity to see an ad, not attention; the measurement definitions and validation limits are documented below.
 
 ![A respondent likes a post, scrolls the feed and likes a second post.](media/demo.gif)
 
