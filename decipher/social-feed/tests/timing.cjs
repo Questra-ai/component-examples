@@ -12,3 +12,9 @@ test('long stalls excluded and flagged lower-bound',()=>{let m=meter();m.sample(
 test('negative clock steps never subtract or add',()=>{let m=meter();m.sample(100,true);m.sample(90,true);assert.equal(m.total,0)});
 test('availability distinguishes observed zero and positive',()=>{let m=meter();assert.equal(m.state(),1);m.sample(0,true);m.sample(10,true);assert.equal(m.state(),2);assert.equal(meter(0,true).state(),3)});
 console.log(count+' timing tests passed');
+const {fullFraction}=require('../src/timing.js');
+test('full-card denominator remains strict for tall cards',()=>assert.equal(fullFraction(rect(0,0,400,1200),[rect(0,0,400,600)]),.5));
+test('nested clipping excludes clipped card pixels',()=>assert.equal(fullFraction(rect(0,0,400,400),[rect(0,0,400,800),rect(0,0,400,100)]),.25));
+test('horizontal and vertical ancestor clipping combine',()=>assert.equal(fullFraction(rect(0,0,400,400),[rect(0,0,200,800),rect(0,0,400,100)]),.125));
+test('two independent thresholds capture partial repeated exposures',()=>{const a=meter(),h=meter();for(const [t,f] of [[0,.25],[100,.25],[200,0],[300,.8],[400,.8],[500,.8]]){a.sample(t,f>=.01);h.sample(t,f>=.5)}assert.equal(a.total,300);assert.equal(h.total,200)});
+test('duplicate lifecycle samples cannot double count',()=>{const m=meter();m.sample(0,true);m.sample(100,true);m.sample(100,true);m.pause();m.pause();m.sample(10000,true);assert.equal(m.total,100)});

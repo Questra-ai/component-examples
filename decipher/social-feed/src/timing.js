@@ -21,7 +21,14 @@ function meter(total=0,partial=false){
   state(){return this.partial?3:(this.total>=1?2:1)}
  };
 }
-const api={fraction,meter};
+// Full card denominator; clip rectangles represent viewport and overflow ancestors.
+function fullFraction(rect,clips){
+ if(!(rect.width>0&&rect.height>0))return 0;
+ let left=rect.left,right=rect.right,top=rect.top,bottom=rect.bottom;
+ for(const clip of clips){left=Math.max(left,clip.left);right=Math.min(right,clip.right);top=Math.max(top,clip.top);bottom=Math.min(bottom,clip.bottom)}
+ return Math.max(0,right-left)*Math.max(0,bottom-top)/(rect.width*rect.height);
+}
+const api={fraction,fullFraction,meter};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else scope.SocialFeedTiming=api;
 })(typeof window==='undefined'?globalThis:window);

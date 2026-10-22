@@ -1,0 +1,55 @@
+<!-- questra-theme:start -->
+<style>/* Questra brand: questra-workspace/brand/motion/motion.js, BRAND (lines 51–52).
+   Shared shell and native controls only. No font or stylesheet network dependency. */
+:root{--qt-chalk:#f5f1ec;--qt-coral:#ff505d;--qt-slate:#103743;--qt-line:#10374333;--qt-surface:#fff;--qt-radius:24px;color-scheme:light}
+html{background:var(--qt-chalk)}
+html body,html body.survey-page{margin:0;background:var(--qt-chalk);color:var(--qt-slate);font:16px/1.5 Arial,Helvetica,sans-serif;min-height:100vh}
+body #survey{box-sizing:border-box;width:100%;max-width:1240px;margin:0 auto;padding:28px 32px 48px;background:transparent;border:0;box-shadow:none;border-radius:0}
+body .survey-section,body .survey-body{box-sizing:border-box;max-width:none;width:100%;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
+body .survey-header,body .survey-footer{background:transparent;color:var(--qt-slate)}
+body .question{box-sizing:border-box;margin:24px 0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;color:var(--qt-slate)}
+body .question-text{font-size:clamp(22px,3vw,34px);line-height:1.2;letter-spacing:-.6px;color:var(--qt-slate)}
+body .instruction-text{color:var(--qt-slate);line-height:1.6}
+body .answers{max-width:100%;overflow-x:auto}
+body .answers input:not([type=radio]):not([type=checkbox]):not([type=hidden]),body .answers textarea,body .answers select{box-sizing:border-box;max-width:100%;font:inherit;color:var(--qt-slate);background:white;border:1px solid var(--qt-slate);border-radius:8px;padding:10px}
+body input[type=radio],body input[type=checkbox]{accent-color:var(--qt-slate);min-width:20px;min-height:20px}
+body .survey-buttons{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end;padding:24px 0}
+body #btn_continue,body #btn_finish,body #btn_back{font:700 16px/1.4 Arial,sans-serif;min-height:48px;padding:13px 26px;border:2px solid var(--qt-slate);border-radius:999px;background:var(--qt-slate);color:var(--qt-chalk);cursor:pointer;box-shadow:4px 4px 0 var(--qt-coral)}
+body #btn_back{background:transparent;color:var(--qt-slate);box-shadow:none}
+body :focus-visible{outline:3px solid var(--qt-slate);outline-offset:4px}
+body .survey-error,body .question-error,body .error-text{color:var(--qt-slate);background:var(--qt-chalk);border-left:4px solid var(--qt-coral);padding:12px}
+body .progress-bar,body [role="progressbar"]{display:none!important}
+.qt-footer{display:flex;justify-content:center;padding:32px 20px 40px;background:transparent}
+.qt-footer img{display:block;width:120px;height:36px;object-fit:contain}
+/* The optional early gate never hides the form, navigation or validation messages.
+   CSS provides an independent fail-open deadline even if a later script throws. */
+html.qt-pending .question,html.qt-pending .outfit-ui,html.qt-pending .sh-ui{visibility:hidden;animation:qt-reveal 0s 1.8s forwards}
+html.qt-pending .survey-body:before{content:"Preparing your activity…";display:block;padding:24px;border-left:4px solid var(--qt-coral);animation:qt-dismiss 0s 1.8s forwards}
+\@keyframes qt-reveal{to{visibility:visible}}
+\@keyframes qt-dismiss{to{display:none;visibility:hidden;height:0;padding:0}}
+\@media(max-width:650px){body #survey{padding:16px 12px 32px}body .question{padding:0;border-radius:0;margin:16px 0}}
+\@media(prefers-reduced-motion:reduce){body{scroll-behavior:auto}}
+</style>
+<script>/* Runs inline in the head, before body parsing; no jQuery dependency. */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var expired = false;
+  root.classList.add('qt-pending');
+  function reveal(fallback) {
+    if (fallback) expired = true;
+    root.classList.remove('qt-pending');
+  }
+  window.QuestraTheme = {
+    canEnhance: function () { return !expired; },
+    ready: function () { reveal(false); }
+  };
+  setTimeout(function () { reveal(true); }, 1800);
+  // Keyboard/pointer intent takes precedence over cosmetic loading.
+  document.addEventListener('keydown', function () { reveal(true); }, {once:true,capture:true});
+  document.addEventListener('pointerdown', function () { reveal(true); }, {once:true,capture:true});
+  window.addEventListener('pageshow', function (event) { if (event.persisted) reveal(true); });
+
+})();
+</script>
+<!-- questra-theme:end -->

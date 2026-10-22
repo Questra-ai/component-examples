@@ -1,0 +1,103 @@
+{
+  "source": "Original images created with the built-in image generation tool for this synthetic research component.",
+  "identities": "No real person posts, customer data or third-party campaign imagery. Fictional author names and brands are in content.json.",
+  "processing": "JPEG conversion/downsampling only; source images retained privately.",
+  "images": [
+    {
+      "level": 1,
+      "file": "assets/images/image-01.jpg",
+      "sha256": "986877065fb59dea2a2308fdf5470e3f37d58dae218aec61d81121532bf9593c",
+      "prompt": "Use case: photorealistic-natural. Create an original believable casual phone photograph for a fictional person's social feed, landscape 4:3 composition. A cream ceramic mug of fresh coffee beside an open paperback and a small plate with a half-eaten croissant on a slightly worn oak kitchen table, morning window light, a linen napkin, relaxed everyday home, warm but realistic colors, tiny crumbs and natural imperfections. No visible words, no people, no logos, no watermark. This is a standalone photo, not a UI or collage. It should feel like a good ordinary moment someone photographed, not a stock advertising set."
+    },
+    {
+      "level": 2,
+      "file": "assets/images/image-02.jpg",
+      "sha256": "090bc9c36d5813b6f9f1fb9c2bf770f69cc597475aa83cc859ac4908e576a7fa",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed post photo. Landscape 4:3 composition. A casual hiking photo from a narrow footpath on a green coastal ridge, golden late afternoon light, cliffs and sea in the distance, a slightly imperfect candid phone composition, no people. Feels like a weekend walk, not an epic fantasy landscape. Real camera texture, restrained colors. No watermark, no UI, no collage."
+    },
+    {
+      "level": 3,
+      "file": "assets/images/image-03.jpg",
+      "sha256": "a318de03844022d185b6c10271c355c5b61d16a998cb05102677b71e021cd532",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed post photo. Landscape 4:3 composition. A candid photo taken on a quiet walk through a pleasant residential neighborhood: old brick terraced houses with colorful front doors and small flower-filled front gardens, soft spring daylight, a bicycle leaning near a gate. No people, house numbers or legible street signs. Real camera texture, restrained colors. No watermark, no UI, no collage."
+    },
+    {
+      "level": 4,
+      "file": "assets/images/image-04.jpg",
+      "sha256": "94fa790730473bf607e361a5d6dd8e1c676a8b92151019413783b10f0c2ac3c1",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed post photo. Landscape 4:3 composition. A natural phone photograph of a small harbor at low tide, two modest colorful fishing boats, wet sand reflecting the morning sky, distant houses softly out of focus, calm everyday seaside visit. No people, logos or legible boat names. Real camera texture, restrained colors. No watermark, no UI, no collage."
+    },
+    {
+      "level": 5,
+      "file": "assets/images/image-05.jpg",
+      "sha256": "757fa17bc05e9ea3c3318c23b2513c7a2ae0588ebb4e986fde0d03270851768d",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed post photo. Landscape 4:3 composition. A close casual phone photo of thriving basil and mint in mismatched terracotta pots on an apartment kitchen windowsill, a tiny watering can nearby, bright natural light, real leaf texture, a lived-in home rather than showroom, no people. Real camera texture, restrained colors. No watermark, no UI, no collage."
+    },
+    {
+      "level": 6,
+      "file": "assets/images/image-06.jpg",
+      "sha256": "f00a7cc4664e9dd7c9cd0a3e982b88b2abbab9e863de94564c33f2c69c51ff37",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed post photo. Landscape 4:3 composition. A casual overhead phone photo of a small stack of worn paperbacks and an open book on a soft gray sofa next to a cup of tea, cozy rainy afternoon window light, unbranded blank or turned-away covers, no legible words, no people. Real camera texture, restrained colors. No watermark, no UI, no collage."
+    },
+    {
+      "level": 7,
+      "file": "assets/images/image-07.jpg",
+      "sha256": "1285961a143d5392e07bb688a464b964dd8c8b3ad6f6671a8887d0123af7722e",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed photograph, landscape 4:3 composition. A candid phone photo of a hobby watercolor painting in progress on a small dining table: a simple landscape on textured paper, a used palette, two brushes and a glass of cloudy rinse water. Afternoon light, slightly messy and authentic beginner artwork, no people, no legible text. Realistic texture and color, no watermark, no UI or collage."
+    },
+    {
+      "level": 8,
+      "file": "assets/images/image-08.jpg",
+      "sha256": "bbb0edea41d6e28f337d7ae121b93c15afd3b21d49f7a64394974b553ba2740e",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed photograph, landscape 4:3 composition. A casual phone photo looking down at a weekend picnic on a checked blanket in a green local park: cheese, sliced pears, bread in paper, two enamel cups, dappled shade, imperfect relaxed arrangement, no people, no labels. Realistic texture and color, no watermark, no UI or collage."
+    },
+    {
+      "level": 9,
+      "file": "assets/images/image-09.jpg",
+      "sha256": "8a97ffbf365bde9a896f13355f03aab3961eeb39c4064988a30e84b3864388e5",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed photograph, landscape 4:3 composition. A candid kitchen phone photo of a freshly baked sourdough loaf with two slices cut on a scratched wooden board, butter in a small dish, a few crumbs, an ordinary home kitchen softly behind, natural side light, no people or logos. Realistic texture and color, no watermark, no UI or collage."
+    },
+    {
+      "level": 10,
+      "file": "assets/images/image-10.jpg",
+      "sha256": "7dabe5b82fd85a9ecbe6bbbc753e5f6d06abe8888c85060c04bfd33c3685f768",
+      "prompt": "Use case: photorealistic-natural. Original fictional social-feed photograph, landscape 4:3 composition. A casual phone photograph of an unbranded steel city bicycle leaning beside a low stone wall on a quiet leafy riverside path, late afternoon, slightly imperfect framing, believable everyday cycling break, no people, no text, no logos. Realistic texture and color, no watermark, no UI or collage."
+    },
+    {
+      "level": 11,
+      "file": "assets/images/image-11.jpg",
+      "sha256": "6a60e2fb7c82bfca873f26b20f272d83586d86350ce091537aa400705282701b",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. A well-made unbranded forest-green 18-liter nylon daypack sitting upright on a simple wooden bench beside a woodland walking trail, padded straps and two bottle pockets, subtle natural material details, warm morning light, inviting but believable outdoor product photography. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    },
+    {
+      "level": 12,
+      "file": "assets/images/image-12.jpg",
+      "sha256": "9c3a75988b4f6d041fa057dcee9246604fdf37d63b2cc29a1ec49efddf0c243d",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. A slate-blue 18-liter everyday nylon daypack lying open on a light wooden table beside a slim laptop, steel water bottle and small notebook, organized everyday essentials, natural window light, contemporary practical product photography. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    },
+    {
+      "level": 13,
+      "file": "assets/images/image-13.jpg",
+      "sha256": "72ab0e17940e349730975ff9376aab44bdae21a494724d981e2b253cb1c4449f",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. A plain cream stand-up pouch of roasted coffee with a small blank terracotta label next to a freshly poured cup of coffee on a warm kitchen counter, subtle steam, morning sunlight, a few coffee beans, realistic premium-but-accessible coffee advertising photograph. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    },
+    {
+      "level": 14,
+      "file": "assets/images/image-14.jpg",
+      "sha256": "cbf198b2e58f651649a7721eb43359de095c36f1b00f43116c75fef1277aa621",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. Overhead coffee advertising photo of a ceramic pour-over brewer, a warm brown coffee mug and a small pile of roasted coffee beans on a light stone surface, linen towel, plain cream unbranded coffee pouch at one edge, tactile natural materials and soft daylight. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    },
+    {
+      "level": 15,
+      "file": "assets/images/image-15.jpg",
+      "sha256": "44cd35ffdedd44832dac2b51661f030569f540e73fbaab2097c7a6ccdbfa8f48",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. Two simple glazed ceramic plant pots with matching saucers, one sage green and one warm cream, a healthy small leafy houseplant in each, a light oak console against a warm neutral wall, beautiful natural side light, realistic contemporary homeware product photography. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    },
+    {
+      "level": 16,
+      "file": "assets/images/image-16.jpg",
+      "sha256": "f7ec86a8a604d064da8295dd34a5585e804f6c5486695cd62a51db7b1dc3c2e7",
+      "prompt": "Use case: ads-marketing. Original product photograph for a fictional sponsored social-feed ad, landscape 4:3 composition. A terracotta ceramic plant pot and a sage green glazed plant pot, both with matching saucers and small healthy leafy houseplants, arranged on a sunny apartment windowsill beside a simple watering can, believable inviting home, realistic homeware product photograph. No people. No text or logos anywhere, no watermark, no UI, no collage. Crisp authentic textures, balanced commercial composition; copy and offers will be added separately in HTML."
+    }
+  ]
+}
